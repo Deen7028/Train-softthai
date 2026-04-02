@@ -1,6 +1,20 @@
-import { ManualTable } from "@/components/manualtable/page";
-import { MOCK_MANUALS } from "./mock";
+'use client';
+
+import ManualTablePage from "@/components/manualtable/page";
+import { useManualContext } from "./ManualContext";
+
+const columns = [
+  { id: 'title', label: 'ชื่อคู่มือ' },
+  { id: 'system', label: 'ระบบ' },
+  { id: 'status', label: 'สถานะ' },
+  { id: 'updatedAt', label: 'ปรับปรุงล่าสุด' },
+];
+
+function ManualContent() {
+  const { manuals } = useManualContext();
+  return <ManualTablePage columns={columns} data={manuals} />;
+}
 
 export default function ManualPage() {
-  return <ManualTable data={MOCK_MANUALS} />;
+  return <ManualContent />;
 }

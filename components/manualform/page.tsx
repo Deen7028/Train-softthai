@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     Box, TextField, Typography, Select, MenuItem, Button,
     IconButton, Switch, FormControl, Paper, Divider, Grid
@@ -10,14 +10,17 @@ import { ManualStatus } from '@/enum';
 import { IManual } from '@/interfaces';
 import Link from 'next/link';
 import { useManualForm } from '@/app/manual/manage/useManualForm';
-
+import { MOCK_MANUALS } from '@/app/manual/mock';
 interface ManualFormProps {
     initialData?: IManual;
 }
 
 export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
     const { state, handlers } = useManualForm(initialData);
-
+    const systemOptions = useMemo(() => {
+        const systems = MOCK_MANUALS.map((item) => item.system).filter(Boolean) as string[];
+        return Array.from(new Set(systems));
+    }, []);
     return (
         <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
             <Paper sx={{ p: { xs: 2, md: 4 }, borderRadius: 4, boxShadow: 'none' }}>
@@ -31,7 +34,11 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                             <Typography variant="body2" sx={{ mb: 1 }}>ระบบ *</Typography>
                             <Select displayEmpty value={state.system} onChange={handlers.setSystem}>
                                 <MenuItem value="" disabled>เลือกระบบ</MenuItem>
-                                <MenuItem value="การปฏิบัติงานด้านความปลอดภัย">การปฏิบัติงานด้านความปลอดภัย</MenuItem>
+                                {systemOptions.map((sys, index) => (
+                                    <MenuItem key={index} value={sys}>
+                                        {sys}
+                                    </MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Grid>

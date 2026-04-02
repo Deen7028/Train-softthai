@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect, ChangeEvent } from "react";
+import { useRouter } from "next/navigation";
 import { SelectChangeEvent } from "@mui/material";
 import { IManual } from "@/interfaces";
 import { ManualStatus } from "@/enum";
+import { useManualContext } from "../ManualContext";
 
 export const useManualForm = (initialData?: IManual) => {
+  const router = useRouter();
+  const { addManual, updateManual } = useManualContext();
   const [system, setSystem] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -40,15 +44,35 @@ export const useManualForm = (initialData?: IManual) => {
     }
   };
 
-  const handleSubmit = () => {
-    const payload = {
-      system,
-      title,
-      description,
-      status: status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE,
-      file: selectedFile,
-    };
-    console.log("Submit Payload:", payload);
+  const handleSubmit = async () => {
+    if (!title || !system) {
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+
+    try {
+      const newManual: IManual = {
+        id: initialData?.id || Math.random().toString(36).substr(2, 9),
+        system,
+        title,
+        status: status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE,
+        createdAt: initialData?.createdAt || new Date(),
+        updatedAt: new Date(),
+      };
+
+      if (initialData?.id) {
+        updateManual(initialData.id, newManual);
+      } else {
+        addManual(newManual);
+      }
+
+      alert("บันทึกข้อมูลสำเร็จ!");
+      router.push("/manual");
+      router.refresh();
+    } catch (error) {
+      console.error("Submit Error:", error);
+      alert("ไม่สามารถบันทึกข้อมูลได้");
+    }
   };
 
   return {
