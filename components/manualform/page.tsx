@@ -91,14 +91,14 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
             </Paper>
 
             <Grid container spacing={2} justifyContent="space-between" sx={{ mt: 4 }}>
-                <Grid size={{ xs: 12, sm: 'auto' }}>
+                <Grid size={{ xs: 6, sm: 'auto' }}>
                     <Link href="/manual" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<ArrowBackIos />} sx={{ bgcolor: '#757575' }}>
                             ย้อนกลับ
                         </Button>
                     </Link>
                 </Grid>
-                <Grid size={{ xs: 12, sm: 'auto' }}>
+                <Grid size={{ xs: 6, sm: 'auto' }}>
                     <Button variant="contained" startIcon={<Save />} onClick={handlers.handleSubmit} sx={{ bgcolor: '#4a148c' }}>
                         บันทึก
                     </Button>
