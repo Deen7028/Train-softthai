@@ -270,10 +270,10 @@ export default function AnnouncementManagement() {
             <Table>
               <TableHead sx={{ bgcolor: '#F9FAFB' }}>
                 <TableRow>
-                  <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
+                  <TableCell padding="checkbox"><Checkbox size="small"  /></TableCell>
                   <TableCell>ที่ ↓</TableCell>
                   <TableCell align="center">
-                    <IconButton size="small" color="primary" component={Link} href="/addEdit">
+                    <IconButton size="small" color="primary" component={Link} href="/notice/addEdit">
                       <AddCircleIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -291,7 +291,7 @@ export default function AnnouncementManagement() {
                       <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
                       <TableCell>{row.id}</TableCell>
                       <TableCell align="center">
-                        <IconButton size="small" component={Link} href={`/addEdit?id=${row.id}`}>
+                        <IconButton size="small" component={Link} href={`/notice/addEdit?id=${row.id}`}>
                           <EditIcon fontSize="small" sx={{ color: '#F1C40F' }} />
                         </IconButton>
                       </TableCell>
