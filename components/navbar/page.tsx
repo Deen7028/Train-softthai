@@ -50,6 +50,10 @@ export default function Navbar() {
                         <Link href="/manual" passHref>
                             <Button sx={{ color: "white"}}>จัดการคู่มือ</Button>
                         </Link>
+                        <Link href="/noticeE" passHref>
+                            <Button sx={{ color: "white"}}>จัดการประกาศ</Button>
+                        </Link>
+
                     </Box>
                 </Toolbar>
             </Container>

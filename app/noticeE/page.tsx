@@ -15,6 +15,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import Link from 'next/link';
+import Navbar from '@/components/navbar/page';
 
 // กำหนด Interface สำหรับ Form Data
 interface FilterInputs {
@@ -147,218 +148,221 @@ export default function AnnouncementManagement() {
   };
 
   return (
-    <Box sx={{ bgcolor: '#F4F4F4', minHeight: '100vh', py: 4 }}>
-      <Container maxWidth="xl" sx={{ mt: 5 }}>
-        <Paper sx={{ p: 3, borderRadius: 4, boxShadow: '0px 4px 20px rgba(0,0,0,0.05)' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
-            จัดการประกาศ
-          </Typography>
+    <>
+      <Navbar></Navbar>
+      <Box sx={{ bgcolor: '#F4F4F4', minHeight: '100vh', py: 4 }}>
+        <Container maxWidth="xl" sx={{ mt: 5 }}>
+          <Paper sx={{ p: 3, borderRadius: 4, boxShadow: '0px 4px 20px rgba(0,0,0,0.05)' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 3 }}>
+              จัดการประกาศ
+            </Typography>
 
-          {/* Filter Section using react-hook-form */}
-          <form onSubmit={handleSubmit(onSearchSubmit)}>
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-              <Grid size={6}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  placeholder="ค้นหาชื่อประกาศ..."
-                  {...register('searchTerm')}
-                />
-              </Grid>
-              <Grid size={3}>
-                <TextField
-                  fullWidth size="small" type="date" label="วันที่เริ่มต้น"
-                  InputLabelProps={{ shrink: true }} {...register('startDate')}
-                />
-              </Grid>
-              <Grid size={3}>
-                <TextField
-                  fullWidth size="small" type="date" label="วันที่สิ้นสุด"
-                  InputLabelProps={{ shrink: true }} {...register('endDate')}
-                />
-              </Grid>
+            {/* Filter Section using react-hook-form */}
+            <form onSubmit={handleSubmit(onSearchSubmit)}>
+              <Grid container spacing={2} sx={{ mb: 4 }}>
+                <Grid size={6}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    placeholder="ค้นหาชื่อประกาศ..."
+                    {...register('searchTerm')}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <TextField
+                    fullWidth size="small" type="date" label="วันที่เริ่มต้น"
+                    InputLabelProps={{ shrink: true }} {...register('startDate')}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <TextField
+                    fullWidth size="small" type="date" label="วันที่สิ้นสุด"
+                    InputLabelProps={{ shrink: true }} {...register('endDate')}
+                  />
+                </Grid>
 
-              <Grid size={3}>
-                <Controller
-                  name="location"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth size="small">
-                      <Select {...field} displayEmpty>
-                        <MenuItem value="">สถานที่</MenuItem>
-                        <MenuItem value="1">โรงเเรม1</MenuItem>
-                        <MenuItem value="2">โรงเเรม2</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-              <Grid size={3}>
-                <Controller
-                  name="category"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth size="small">
-                      <Select {...field} displayEmpty>
-                        <MenuItem value="">ประเภทประกาศ</MenuItem>
-                        <MenuItem value="1">วันสำคัญ</MenuItem>
-                        <MenuItem value="2">ประกาศ</MenuItem>
-                        <MenuItem value="3">เเจ้งเตือน</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Grid>
-              <Grid size={3}>
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field }) => (
-                    <FormControl fullWidth size="small">
-                      <Select {...field} displayEmpty>
-                        <MenuItem value="">สถานะ</MenuItem>
-                        <MenuItem value="1">ใช้งาน</MenuItem>
-                        <MenuItem value="2">ไม่ใช้งาน</MenuItem>
-                      </Select>
-                    </FormControl>
-                  )}
-                />
-              </Grid>
+                <Grid size={3}>
+                  <Controller
+                    name="location"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth size="small">
+                        <Select {...field} displayEmpty>
+                          <MenuItem value="">สถานที่</MenuItem>
+                          <MenuItem value="1">โรงเเรม1</MenuItem>
+                          <MenuItem value="2">โรงเเรม2</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <Controller
+                    name="category"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth size="small">
+                        <Select {...field} displayEmpty>
+                          <MenuItem value="">ประเภทประกาศ</MenuItem>
+                          <MenuItem value="1">วันสำคัญ</MenuItem>
+                          <MenuItem value="2">ประกาศ</MenuItem>
+                          <MenuItem value="3">เเจ้งเตือน</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Grid>
+                <Grid size={3}>
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                      <FormControl fullWidth size="small">
+                        <Select {...field} displayEmpty>
+                          <MenuItem value="">สถานะ</MenuItem>
+                          <MenuItem value="1">ใช้งาน</MenuItem>
+                          <MenuItem value="2">ไม่ใช้งาน</MenuItem>
+                        </Select>
+                      </FormControl>
+                    )}
+                  />
+                </Grid>
 
-              <Grid size={3} sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  onClick={handleRefresh}
-                  sx={{ minWidth: 40, borderColor: '#DDD', color: '#333' }}
-                >
-                  <RefreshIcon fontSize="small" />
-                </Button>
-                <Button
-                  type="submit" // ใช้ type submit เพื่อเรียก handleSubmit
-                  variant="contained"
-                  sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#4A1435' } }}
-                >
-                  <SearchIcon fontSize="small" />
-                </Button>
+                <Grid size={3} sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                  <Button
+                    variant="outlined"
+                    onClick={handleRefresh}
+                    sx={{ minWidth: 40, borderColor: '#DDD', color: '#333' }}
+                  >
+                    <RefreshIcon fontSize="small" />
+                  </Button>
+                  <Button
+                    type="submit" // ใช้ type submit เพื่อเรียก handleSubmit
+                    variant="contained"
+                    sx={{ bgcolor: primaryColor, '&:hover': { bgcolor: '#4A1435' } }}
+                  >
+                    <SearchIcon fontSize="small" />
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          </form>
+            </form>
 
-          {/* Table Section */}
-          <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: '#F9FAFB' }}>
-                <TableRow>
-                  <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
-                  <TableCell>ที่ ↓</TableCell>
-                  <TableCell align="center">
-                    <IconButton size="small" color="primary" component={Link} href="/notice/addEdit">
-                      <AddCircleIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
-                  <TableCell>ชื่อประกาศ</TableCell>
-                  <TableCell>วันที่เริ่มต้น</TableCell>
-                  <TableCell>วันที่สิ้นสุด</TableCell>
-                  <TableCell>สถานะ</TableCell>
-                  <TableCell align="center">จัดการ</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {displayedRows.length > 0 ? (
-                  displayedRows.map((row) => (
-                    <TableRow key={row.id} hover>
-                      <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
-                      <TableCell>
-                        <FormControl size="small">
-                          <Select
-                            // 1. หาตำแหน่งของแถวนี้ในรายการที่ 'กรองแล้ว'
-                            value={filteredRows.findIndex(item => item.id === row.id)}
-                            onChange={(e) => {
-                              const newIndex = Number(e.target.value);
-                              // เรียกฟังก์ชันย้ายตำแหน่งโดยอิงจากรายการที่กรอง
-                              handleReorderInFiltered(row.id, newIndex);
-                            }}
-                            sx={{ minWidth: 60 }}
-                          >
-                            {/* 2. วนลูปสร้างตัวเลขตามจำนวนที่ 'กรองได้จริง' เท่านั้น */}
-                            {filteredRows.map((_, index) => (
-                              <MenuItem key={index} value={index}>
-                                {index + 1}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      </TableCell>
-                      <TableCell align="center">
-                        <IconButton size="small" component={Link} href={`/notice/addEdit?id=${row.id}`}>
-                          <EditIcon fontSize="small" sx={{ color: '#F1C40F' }} />
-                        </IconButton>
-                      </TableCell>
-                      <TableCell>{row.title}</TableCell>
-                      <TableCell>{row.start}</TableCell>
-                      <TableCell>{row.end}</TableCell>
-                      <TableCell>
-                        <Box sx={{
-                          color: row.statusId === '1' ? '#2ECC71' : '#E74C3C',
-                          fontWeight: '500'
-                        }}>
-                          {row.statusId === '1' ? 'ใช้งาน' : 'ไม่ใช้งาน'}
-                        </Box>
-                      </TableCell>
-                      <TableCell align="center">
-                        <IconButton onClick={() => handleDelete(row.id)}>
-                          <DeleteIcon fontSize="small" color="error" />
-                        </IconButton>
+            {/* Table Section */}
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ bgcolor: '#F9FAFB' }}>
+                  <TableRow>
+                    <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
+                    <TableCell>ที่ ↓</TableCell>
+                    <TableCell align="center">
+                      <IconButton size="small" color="primary" component={Link} href="/notice/addEdit">
+                        <AddCircleIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                    <TableCell>ชื่อประกาศ</TableCell>
+                    <TableCell>วันที่เริ่มต้น</TableCell>
+                    <TableCell>วันที่สิ้นสุด</TableCell>
+                    <TableCell>สถานะ</TableCell>
+                    <TableCell align="center">จัดการ</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {displayedRows.length > 0 ? (
+                    displayedRows.map((row) => (
+                      <TableRow key={row.id} hover>
+                        <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
+                        <TableCell>
+                          <FormControl size="small">
+                            <Select
+                              // 1. หาตำแหน่งของแถวนี้ในรายการที่ 'กรองแล้ว'
+                              value={filteredRows.findIndex(item => item.id === row.id)}
+                              onChange={(e) => {
+                                const newIndex = Number(e.target.value);
+                                // เรียกฟังก์ชันย้ายตำแหน่งโดยอิงจากรายการที่กรอง
+                                handleReorderInFiltered(row.id, newIndex);
+                              }}
+                              sx={{ minWidth: 60 }}
+                            >
+                              {/* 2. วนลูปสร้างตัวเลขตามจำนวนที่ 'กรองได้จริง' เท่านั้น */}
+                              {filteredRows.map((_, index) => (
+                                <MenuItem key={index} value={index}>
+                                  {index + 1}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton size="small" component={Link} href={`/notice/addEdit?id=${row.id}`}>
+                            <EditIcon fontSize="small" sx={{ color: '#F1C40F' }} />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell>{row.title}</TableCell>
+                        <TableCell>{row.start}</TableCell>
+                        <TableCell>{row.end}</TableCell>
+                        <TableCell>
+                          <Box sx={{
+                            color: row.statusId === '1' ? '#2ECC71' : '#E74C3C',
+                            fontWeight: '500'
+                          }}>
+                            {row.statusId === '1' ? 'ใช้งาน' : 'ไม่ใช้งาน'}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton onClick={() => handleDelete(row.id)}>
+                            <DeleteIcon fontSize="small" color="error" />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                        ไม่พบข้อมูลที่ค้นหา
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                      ไม่พบข้อมูลที่ค้นหา
-                    </TableCell>
-                  </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            {/* Pagination Section */}
+            <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
+              <Pagination
+                count={Math.ceil(filteredRows.length / rowsPerPage)}
+                page={page}
+                onChange={(_, value) => setPage(value)}
+                shape="rounded"
+                size="small"
+              />
+
+              <Controller
+                name="rowpage"
+                control={control}
+                render={({ field }) => (
+                  <FormControl size="small">
+                    <Select
+                      {...field}
+                      onChange={(e) => {
+                        const newSize = Number(e.target.value);
+                        field.onChange(e);      // 1. อัปเดตค่าใน react-hook-form
+                        setRowsPerPage(newSize); // 2. อัปเดต State เพื่อให้ตารางเปลี่ยนทันที
+                        setPage(1);             // 3. รีเซ็ตกลับไปหน้าแรก (กัน Error กรณีหน้าเกิน)
+                      }}
+                    >
+                      <MenuItem value="5">5</MenuItem>
+                      <MenuItem value="10">10</MenuItem>
+                      <MenuItem value="25">25</MenuItem>
+                      <MenuItem value="50">50</MenuItem>
+                      <MenuItem value="100">100</MenuItem>
+                    </Select>
+                  </FormControl>
                 )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* Pagination Section */}
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
-            <Pagination
-              count={Math.ceil(filteredRows.length / rowsPerPage)}
-              page={page}
-              onChange={(_, value) => setPage(value)}
-              shape="rounded"
-              size="small"
-            />
-
-            <Controller
-              name="rowpage"
-              control={control}
-              render={({ field }) => (
-                <FormControl size="small">
-                  <Select
-                    {...field}
-                    onChange={(e) => {
-                      const newSize = Number(e.target.value);
-                      field.onChange(e);      // 1. อัปเดตค่าใน react-hook-form
-                      setRowsPerPage(newSize); // 2. อัปเดต State เพื่อให้ตารางเปลี่ยนทันที
-                      setPage(1);             // 3. รีเซ็ตกลับไปหน้าแรก (กัน Error กรณีหน้าเกิน)
-                    }}
-                  >
-                    <MenuItem value="5">5</MenuItem>
-                    <MenuItem value="10">10</MenuItem>
-                    <MenuItem value="25">25</MenuItem>
-                    <MenuItem value="50">50</MenuItem>
-                    <MenuItem value="100">100</MenuItem>
-                  </Select>
-                </FormControl>
-              )}
-            />
-          </Box>
-        </Paper>
-      </Container>
-    </Box>
+              />
+            </Box>
+          </Paper>
+        </Container>
+      </Box>
+    </>
   );
 }
