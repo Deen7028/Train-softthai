@@ -23,13 +23,12 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
         handleResetFilters,
         handlePageChange, handleSelectPage,
         isLoading,
-        // สมมติว่ามีฟังก์ชันจัดการการเปลี่ยนตัวเลขลำดับใน useManualTable
         handleOrderChange,
-        totalItems // จำนวนรายการทั้งหมดเพื่อนำมาทำ List ตัวเลขใน Select
+        totalItems 
     } = useManualTable(apiUrl, data as IManual[]);
 
     return (
-        <Grid container spacing={3} sx={{ p: { xs: 2, md: 3 }, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
+        <Grid container spacing={3} sx={{ p: { xs: 2, md: 3 }, bgcolor: 'white', minHeight: '100vh' }}>
             <Grid size={12}>
                 <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#4a148c' }}>
                     จัดการคู่มือการใช้งาน
@@ -103,8 +102,8 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
 
             {/* Table Section */}
             <Grid size={12}>
-                <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 'none' }}>
-                    <Table sx={{ minWidth: 650 }}>
+                <TableContainer  component={Paper} sx={{ borderRadius: 3, boxShadow: 'none' }}>
+                    <Table sx={{ fullWith: '100%' }}>
                         <TableHead sx={{ bgcolor: '#eeeeee' }}>
                             <TableRow>
                                 <TableCell align="center" sx={{ width: 50 }}>

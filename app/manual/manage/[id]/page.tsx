@@ -1,5 +1,6 @@
 import { ManualForm } from "@/components/manualform/page";
 import { MOCK_MANUALS } from "@/app/manual/mock";
+import Navbar from "@/components/navbar/page";
 
 export default async function EditManualPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,5 +15,9 @@ export default async function EditManualPage({ params }: { params: Promise<{ id:
     );
   }
 
-  return <ManualForm initialData={manual} />;
+  return (
+    <>
+      <Navbar></Navbar>
+      <ManualForm initialData={manual} />
+    </>);
 }

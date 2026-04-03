@@ -8,11 +8,12 @@ import {
     Typography,
     Container,
     Button,
-    Stack
+    Stack,
+    colors
 } from '@mui/material';
 import AdbIcon from '@mui/icons-material/Adb';
+import Link from 'next/link';
 
-const navItems = ['หน้าแรก', 'ตารางเรียน', 'ผู้ดูแลระบบ', 'ประวัติการจอง', 'กามารุดิง'];
 
 export default function Navbar() {
     return (
@@ -27,39 +28,30 @@ export default function Navbar() {
             }}
         >
             <Container maxWidth="lg">
-                    <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
+                <Toolbar disableGutters sx={{ justifyContent: 'space-between' }}>
 
 
-                        <Stack direction="row" alignItems="center" spacing={1} sx={{ cursor: 'pointer' }}>
-                            <Typography
-                                variant="h6"
-                                noWrap
-                                sx={{
-                                    fontWeight: 700,
-                                    letterSpacing: '.1rem',
-                                    color: 'white',
-                                    textDecoration: 'none',
-                                }}
-                            >
-                                MCS Booking
-                            </Typography>
-                        </Stack>
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ cursor: 'pointer' }}>
+                        <Typography
+                            variant="h6"
+                            noWrap
+                            sx={{
+                                fontWeight: 700,
+                                letterSpacing: '.1rem',
+                                color: 'white',
+                                textDecoration: 'none',
+                            }}
+                        >
+                            MCS Booking
+                        </Typography>
+                    </Stack>
 
-                        <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 2 }}>
-                            {navItems.map((item) => (
-                                <Button
-                                    key={item}
-                                    sx={{
-                                        color: 'white',
-                                        fontWeight: '500'
-                                        
-                                    }}
-                                >
-                                    {item}
-                                </Button>
-                            ))}
-                        </Box>
-                    </Toolbar>
+                    <Box sx={{ display: { md: 'flex' }, gap: 2 }}>
+                        <Link href="/manual" passHref>
+                            <Button sx={{ color: "white"}}>จัดการคู่มือ</Button>
+                        </Link>
+                    </Box>
+                </Toolbar>
             </Container>
         </AppBar>
     );
