@@ -247,84 +247,84 @@ export default function AnnouncementManagement() {
               </Grid>
             </form>
 
-            {/* Table Section */}
-            <TableContainer>
-              <Table>
-                <TableHead sx={{ bgcolor: '#F9FAFB' }}>
-                  <TableRow>
-                    <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
-                    <TableCell>ที่ ↓</TableCell>
-                    <TableCell align="center">
-                      <IconButton size="small" color="primary" component={Link} href="/notice/addEdit">
-                        <AddCircleIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                    <TableCell>ชื่อประกาศ</TableCell>
-                    <TableCell>วันที่เริ่มต้น</TableCell>
-                    <TableCell>วันที่สิ้นสุด</TableCell>
-                    <TableCell>สถานะ</TableCell>
-                    <TableCell align="center">จัดการ</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {displayedRows.length > 0 ? (
-                    displayedRows.map((row) => (
-                      <TableRow key={row.id} hover>
-                        <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
-                        <TableCell>
-                          <FormControl size="small">
-                            <Select
-                              // 1. หาตำแหน่งของแถวนี้ในรายการที่ 'กรองแล้ว'
-                              value={filteredRows.findIndex(item => item.id === row.id)}
-                              onChange={(e) => {
-                                const newIndex = Number(e.target.value);
-                                // เรียกฟังก์ชันย้ายตำแหน่งโดยอิงจากรายการที่กรอง
-                                handleReorderInFiltered(row.id, newIndex);
-                              }}
-                              sx={{ minWidth: 60 }}
-                            >
-                              {/* 2. วนลูปสร้างตัวเลขตามจำนวนที่ 'กรองได้จริง' เท่านั้น */}
-                              {filteredRows.map((_, index) => (
-                                <MenuItem key={index} value={index}>
-                                  {index + 1}
-                                </MenuItem>
-                              ))}
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton size="small" component={Link} href={`/notice/addEdit?id=${row.id}`}>
-                            <EditIcon fontSize="small" sx={{ color: '#F1C40F' }} />
-                          </IconButton>
-                        </TableCell>
-                        <TableCell>{row.title}</TableCell>
-                        <TableCell>{row.start}</TableCell>
-                        <TableCell>{row.end}</TableCell>
-                        <TableCell>
-                          <Box sx={{
-                            color: row.statusId === '1' ? '#2ECC71' : '#E74C3C',
-                            fontWeight: '500'
-                          }}>
-                            {row.statusId === '1' ? 'ใช้งาน' : 'ไม่ใช้งาน'}
-                          </Box>
-                        </TableCell>
-                        <TableCell align="center">
-                          <IconButton onClick={() => handleDelete(row.id)}>
-                            <DeleteIcon fontSize="small" color="error" />
-                          </IconButton>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
-                        ไม่พบข้อมูลที่ค้นหา
+          {/* Table Section */}
+          <TableContainer>
+            <Table>
+              <TableHead sx={{ bgcolor: '#F9FAFB' }}>
+                <TableRow>
+                  <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
+                  <TableCell>ที่ ↓</TableCell>
+                  <TableCell align="center">
+                    <IconButton size="small" color="primary" component={Link} href="/notice/addEdit">
+                      <AddCircleIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>ชื่อประกาศ</TableCell>
+                  <TableCell>วันที่เริ่มต้น</TableCell>
+                  <TableCell>วันที่สิ้นสุด</TableCell>
+                  <TableCell>สถานะ</TableCell>
+                  <TableCell align="center">จัดการ</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {displayedRows.length > 0 ? (
+                  displayedRows.map((row) => (
+                    <TableRow key={row.id} hover>
+                      <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
+                      <TableCell>
+                        <FormControl size="small">
+                          <Select
+                            // 1. หาตำแหน่งของแถวนี้ในรายการที่ 'กรองแล้ว'
+                            value={filteredRows.findIndex(item => item.id === row.id)}
+                            onChange={(e) => {
+                              const newIndex = Number(e.target.value);
+                              // เรียกฟังก์ชันย้ายตำแหน่งโดยอิงจากรายการที่กรอง
+                              handleReorderInFiltered(row.id, newIndex);
+                            }}
+                            sx={{ minWidth: 60 }}
+                          >
+                            {/* 2. วนลูปสร้างตัวเลขตามจำนวนที่ 'กรองได้จริง' เท่านั้น */}
+                            {filteredRows.map((_, index) => (
+                              <MenuItem key={index} value={index}>
+                                {index + 1}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton size="small" component={Link} href={`/notice/addEdit?id=${row.id}`}>
+                          <EditIcon fontSize="small" sx={{ color: '#F1C40F' }} />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell>{row.title}</TableCell>
+                      <TableCell>{row.start}</TableCell>
+                      <TableCell>{row.end}</TableCell>
+                      <TableCell>
+                        <Box sx={{
+                          color: row.statusId === '1' ? '#2ECC71' : '#E74C3C',
+                          fontWeight: '500'
+                        }}>
+                          {row.statusId === '1' ? 'ใช้งาน' : 'ไม่ใช้งาน'}
+                        </Box>
+                      </TableCell>
+                      <TableCell align="center">
+                        <IconButton onClick={() => handleDelete(row.id)}>
+                          <DeleteIcon fontSize="small" color="error" />
+                        </IconButton>
                       </TableCell>
                     </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 3 }}>
+                      ไม่พบข้อมูลที่ค้นหา
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
 
             {/* Pagination Section */}
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 2 }}>
