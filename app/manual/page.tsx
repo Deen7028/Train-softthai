@@ -3,6 +3,7 @@
 import ManualTablePage from "@/components/manualtable/page";
 import { useManualContext } from "./ManualContext";
 import Navbar from "@/components/navbar/page";
+import Footer from "@/components/footer/page";
 
 const columns = [
   { id: 'title', label: 'ชื่อคู่มือ' },
@@ -20,5 +21,6 @@ export default function ManualPage() {
   return (<>
     <Navbar></Navbar>
     <ManualContent />
+    <Footer></Footer>
   </>);
 }

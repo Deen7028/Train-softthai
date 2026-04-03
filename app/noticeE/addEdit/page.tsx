@@ -14,6 +14,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import dayjs from 'dayjs';
 import Checkbox from '@mui/material/Checkbox';
 import Navbar from '@/components/navbar/page';
+import Footer from '@/components/footer/page';
 
 function FormContent() {
   // 1. State สำหรับเก็บข้อมูลฟอร์มทั้งหมด
@@ -45,8 +46,6 @@ function FormContent() {
   // 2. Logic: ถ้ามี ID ให้ดึงข้อมูลเก่ามาใส่ใน State (Simulate API Fetch)
   useEffect(() => {
     if (editId) {
-      // ตัวอย่าง: ในใช้งานจริงคุณจะ fetch จาก API โดยใช้ editId
-      // สมมติข้อมูลที่ได้จาก API:
       const mockData = {
         title: editId === '1' ? 'วันพ่อ' : 'วันแม่',
         note: 'รายละเอียดประกาศเดิม...',
@@ -87,7 +86,7 @@ function FormContent() {
 
   return (
     <>
-    <Navbar></Navbar>
+      <Navbar></Navbar>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Box sx={{ bgcolor: '#f5f5f5', minHeight: '100vh', p: 3 }}>
           <Paper sx={{ p: 4, borderRadius: 4 }}>
@@ -177,6 +176,7 @@ function FormContent() {
           </Paper>
         </Box>
       </LocalizationProvider>
+      <Footer></Footer>
     </>
   );
 }
