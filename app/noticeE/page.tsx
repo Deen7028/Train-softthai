@@ -252,7 +252,7 @@ export default function AnnouncementManagement() {
                   <TableCell padding="checkbox"><Checkbox size="small" /></TableCell>
                   <TableCell>ที่ ↓</TableCell>
                   <TableCell align="center">
-                    <IconButton size="small" color="primary" component={Link} href="/notice/addEdit">
+                    <IconButton size="small" color="primary" component={Link} href="/noticeE/addEdit">
                       <AddCircleIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -290,7 +290,7 @@ export default function AnnouncementManagement() {
                         </FormControl>
                       </TableCell>
                       <TableCell align="center">
-                        <IconButton size="small" component={Link} href={`/notice/addEdit?id=${row.id}`}>
+                        <IconButton size="small" component={Link} href={`/noticeE/addEdit?id=${row.id}`}>
                           <EditIcon fontSize="small" sx={{ color: '#F1C40F' }} />
                         </IconButton>
                       </TableCell>
