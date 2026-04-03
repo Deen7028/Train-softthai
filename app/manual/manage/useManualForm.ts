@@ -9,7 +9,8 @@ import { useManualContext } from "../ManualContext";
 
 export const useManualForm = (initialData?: IManual) => {
   const router = useRouter();
-  const { addManual, updateManual } = useManualContext();
+  const { manuals, addManual, updateManual } = useManualContext();
+  const [id, setId] = useState<string>(initialData?.id || "");
   const [system, setSystem] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
@@ -21,8 +22,11 @@ export const useManualForm = (initialData?: IManual) => {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSystem(initialData.system || "");
       setTitle(initialData.title || "");
-      setDescription(initialData.system || "");
+      setDescription(initialData.description || "");
       setStatus(initialData.status === ManualStatus.ACTIVE);
+    } else {
+      const nextId = manuals ? manuals.length + 1 : 1;
+      setId(String(nextId));
     }
   }, [initialData]);
 
@@ -52,7 +56,7 @@ export const useManualForm = (initialData?: IManual) => {
 
     try {
       const newManual: IManual = {
-        id: initialData?.id || Math.random().toString(36).substr(2, 9),
+        id: id,
         system,
         title,
         status: status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE,
@@ -77,6 +81,7 @@ export const useManualForm = (initialData?: IManual) => {
 
   return {
     state: { system, title, description, status, selectedFile },
+    manuals,
     handlers: {
       setSystem: (e: SelectChangeEvent) => setSystem(e.target.value),
       setTitle: (e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value),

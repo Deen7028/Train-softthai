@@ -4,7 +4,8 @@ import React from 'react';
 import {
     Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
     Paper, IconButton, Checkbox, Select, MenuItem, TextField, Button,
-    Typography, Pagination, InputAdornment, Grid, CircularProgress
+    Typography, Pagination, InputAdornment, Grid, CircularProgress,
+    FormControl
 } from '@mui/material';
 import { Edit, Info, Add, Search, Refresh } from '@mui/icons-material';
 import Link from 'next/link';
@@ -13,11 +14,7 @@ import { ManualStatus } from '@/enum';
 import { useManualTable } from './useManualTable';
 import { formatThaiDate } from '@/utils/formatDate';
 
-interface Props extends IManualTableProps {
-    apiUrl?: string;
-}
-
-export default function ManualTablePage({ columns, data, apiUrl }: Props) {
+export default function ManualTablePage({ columns, data, apiUrl }: IManualTableProps & { apiUrl?: string }) {
     const {
         page, count, paginatedData,
         searchQuery, handleSearchChange,
@@ -25,7 +22,10 @@ export default function ManualTablePage({ columns, data, apiUrl }: Props) {
         statusFilter, handleStatusChange,
         handleResetFilters,
         handlePageChange, handleSelectPage,
-        isLoading
+        isLoading,
+        // สมมติว่ามีฟังก์ชันจัดการการเปลี่ยนตัวเลขลำดับใน useManualTable
+        handleOrderChange,
+        totalItems // จำนวนรายการทั้งหมดเพื่อนำมาทำ List ตัวเลขใน Select
     } = useManualTable(apiUrl, data as IManual[]);
 
     return (
@@ -36,7 +36,6 @@ export default function ManualTablePage({ columns, data, apiUrl }: Props) {
                 </Typography>
             </Grid>
 
-            {/* Filter Section */}
             <Grid size={12} sx={{ mt: 1 }}>
                 <Grid container spacing={2} >
                     <Grid size={{ xs: 12, md: 6 }}>
@@ -115,10 +114,8 @@ export default function ManualTablePage({ columns, data, apiUrl }: Props) {
                                         </IconButton>
                                     </Link>
                                 </TableCell>
-                                <TableCell align="center" sx={{ width: 60 }}>
-                                    แก้ไข
-                                </TableCell>
-                                <TableCell align="center" sx={{ width: 60 }}>ที่</TableCell>
+                                <TableCell align="center" sx={{ width: 60 }}>แก้ไข</TableCell>
+                                <TableCell align="center" sx={{ width: 80 }}>ลำดับ</TableCell>
                                 {columns?.map((col) => (
                                     <TableCell key={col.id} align={col.id === 'status' ? 'center' : 'left'}>
                                         {col.label}
@@ -131,7 +128,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: Props) {
                         <TableBody>
                             {isLoading ? (
                                 <TableRow>
-                                    <TableCell colSpan={columns?.length ? columns.length + 4 : 8} align="center" sx={{ py: 10 }}>
+                                    <TableCell colSpan={12} align="center" sx={{ py: 10 }}>
                                         <CircularProgress sx={{ color: '#4a148c' }} />
                                     </TableCell>
                                 </TableRow>
@@ -146,20 +143,37 @@ export default function ManualTablePage({ columns, data, apiUrl }: Props) {
                                                 </IconButton>
                                             </Link>
                                         </TableCell>
+
+                                        {/* แก้ไขส่วนการดึงตัวเลขลำดับ */}
                                         <TableCell align="center">
-                                            <Typography variant="body2">{(page - 1) * 8 + (index + 1)}</Typography>
+                                            <FormControl size="small" sx={{ minWidth: 60 }}>
+                                                <Select
+                                                    value={row.order || (page - 1) * 8 + (index + 1)} // ดึงจาก row.order ถ้าไม่มีให้รันตาม Index
+                                                    onChange={(e) => handleOrderChange(row.id, e.target.value)}
+                                                    sx={{ height: 35, fontSize: '0.875 r em' }}
+                                                >
+                                                    {/* สร้างตัวเลือกตัวเลขตามจำนวน data ทั้งหมดที่มี */}
+                                                    {[...Array(totalItems || paginatedData.length)].map((_, i) => (
+                                                        <MenuItem key={i + 1} value={i + 1}>
+                                                            {i + 1}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </FormControl>
                                         </TableCell>
 
                                         <TableCell sx={{ maxWidth: 300 }}>{row.title}</TableCell>
                                         <TableCell sx={{ color: 'text.secondary' }}>{row.system}</TableCell>
                                         <TableCell align="center">
-                                            <Typography sx={{ color: row.status === ManualStatus.ACTIVE ? 'green' : 'red', fontWeight: 'medium' }}>
+                                            <Typography sx={{
+                                                color: row.status === ManualStatus.ACTIVE ? 'green' : 'red',
+                                                fontWeight: 'medium'
+                                            }}>
                                                 {row.status}
                                             </Typography>
                                         </TableCell>
-                                        <TableCell sx={{ color: 'gray' }}>{formatThaiDate(row.updatedAt)}</TableCell>
-                                        <TableCell align="center">
-                                            <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white' }}>
+                                        <TableCell sx={{ color: 'gray' }}>{formatThaiDate(row.updatedAt)}
+                                            <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white' ,mx:2}}>
                                                 <Info fontSize="inherit" />
                                             </IconButton>
                                         </TableCell>
@@ -167,7 +181,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: Props) {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={columns?.length ? columns.length + 4 : 8} align="center" sx={{ py: 5 }}>
+                                    <TableCell colSpan={10} align="center" sx={{ py: 5 }}>
                                         <Typography color="text.secondary">ไม่พบข้อมูลที่ค้นหา</Typography>
                                     </TableCell>
                                 </TableRow>

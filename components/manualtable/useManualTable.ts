@@ -70,6 +70,29 @@ export const useManualTable = (
     page * rowsPerPage,
   );
 
+  const totalItems = filteredData.length;
+
+  const handleOrderChange = (id: string | undefined, newOrder: number) => {
+    if (!id) return;
+
+    setData((prevData) => {
+      const existing = prevData.find((item) => item.id === id);
+      if (!existing) return prevData;
+
+      const rest = prevData.filter((item) => item.id !== id);
+      const targetIndex = Math.max(0, Math.min(newOrder - 1, rest.length));
+
+      const updated = [
+        ...rest.slice(0, targetIndex),
+        existing,
+        ...rest.slice(targetIndex),
+      ];
+
+      // set order field จาก index ใหม่ (ไม่บังคับ แต่ช่วยให้ value แสดงถูกต้อง)
+      return updated.map((item, index) => ({ ...item, order: index + 1 }));
+    });
+  };
+
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) =>
     setPage(value);
   const handleSelectPage = (event: SelectChangeEvent<number>) =>
@@ -99,6 +122,7 @@ export const useManualTable = (
     page,
     count,
     paginatedData,
+    totalItems,
     searchQuery,
     systemFilter,
     statusFilter,
@@ -110,5 +134,6 @@ export const useManualTable = (
     handleSystemChange,
     handleStatusChange,
     handleResetFilters,
+    handleOrderChange,
   };
 };

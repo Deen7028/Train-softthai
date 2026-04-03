@@ -1,13 +1,13 @@
 // interfaces/manual.interface.ts
-import { ManualStatus } from '@/enum/ManualStatus';
+import { ManualStatus } from "@/enum/ManualStatus";
 
 export interface IManual {
-  id?: string;                
-  title: string;              
-  system?: string;       
-  videoUrl?: string;          
-  documentUrl?: string;       
-  status: ManualStatus;       
-  createdAt?: Date | string;  
-  updatedAt?: Date | string;  
+  id?: string;
+  title: string;
+  system?: string;
+  description?: string;
+  status: ManualStatus;
+  order?: number;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
