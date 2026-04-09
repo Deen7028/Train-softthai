@@ -84,13 +84,13 @@ export const MOCK_MANUALS: IManual[] = [
     title: "คู่มือการใช้งานระบบแจ้งซ่อม",
     system: "ระบบแจ้งซ่อม",
     status: ManualStatus.ACTIVE,
-    updatedAt: "09/03/2569 09:10",
+    updatedAt: new Date("2026-03-09T09:10:00"),
   },
   {
     id: "13",
     title: "คู่มือการใช้งานระบบจัดการเอกสาร",
     system: "ระบบเอกสาร",
     status: ManualStatus.INACTIVE,
-    updatedAt: "10/03/2569 15:30",
+    updatedAt: new Date("2026-03-10T15:30:00"),
   },
 ];

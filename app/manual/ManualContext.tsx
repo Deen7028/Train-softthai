@@ -1,8 +1,7 @@
 'use client';
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { IManual } from '@/interfaces';
-import { MOCK_MANUALS } from './mock';
 
 interface ManualContextType {
     manuals: IManual[];
@@ -14,23 +13,42 @@ interface ManualContextType {
 const ManualContext = createContext<ManualContextType | undefined>(undefined);
 
 export const ManualProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [manuals, setManuals] = useState<IManual[]>(MOCK_MANUALS);
+    const [manuals, setManuals] = useState<IManual[]>([]);
 
-    const addManual = (manual: IManual) => {
-        const newManual = {
-            ...manual,
-            id: Math.random().toString(36).substr(2, 9),
-            createdAt: new Date(),
-        };
-        setManuals([...manuals, newManual]);
+    useEffect(() => {
+        fetch('/api/manual')
+            .then(res => res.json())
+            .then(data => setManuals(data))
+            .catch(console.error);
+    }, []);
+
+    const addManual = async (manual: IManual) => {
+        const formData = new FormData();
+        formData.append('title', manual.title ?? '');
+        formData.append('system', manual.system ?? '');
+        formData.append('status', manual.status ?? '');
+        await fetch('/api/manual', { method: 'POST', body: formData });
+        const res = await fetch('/api/manual');
+        const data = await res.json();
+        setManuals(data);
     };
 
-    const updateManual = (id: string, manual: IManual) => {
-        setManuals(manuals.map((m) => (m.id === id ? { ...manual, id } : m)));
+    const updateManual = async (id: string, manual: IManual) => {
+        const formData = new FormData();
+        formData.append('title', manual.title ?? '');
+        formData.append('system', manual.system ?? '');
+        formData.append('status', manual.status ?? '');
+        await fetch(`/api/manual/${id}`, { method: 'PUT', body: formData });
+        const res = await fetch('/api/manual');
+        const data = await res.json();
+        setManuals(data);
     };
 
-    const deleteManual = (id: string) => {
-        setManuals(manuals.filter((m) => m.id !== id));
+    const deleteManual = async (id: string) => {
+        await fetch(`/api/manual/${id}`, { method: 'DELETE' });
+        const res = await fetch('/api/manual');
+        const data = await res.json();
+        setManuals(data);
     };
 
     return (

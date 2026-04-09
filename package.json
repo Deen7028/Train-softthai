@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "create-table": "node scripts/create-table.js",
+    "seed": "node scripts/seed.js"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

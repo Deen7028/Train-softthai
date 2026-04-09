@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import pool from "@/lib/db";
+import { ManualStatus } from "@/enum";
 
 export async function POST(request: Request) {
   try {
@@ -32,7 +33,14 @@ export async function GET(request: Request) {
   try {
     const sql = "SELECT * FROM system_manuals ORDER BY sequence_number ASC";
     const [rows] = await pool.query(sql);
-    return NextResponse.json(rows, { status: 200 });
+    const manuals = (rows as unknown[]).map((row) => ({
+      id: row.sequence_number.toString(),
+      title: row.manual_name,
+      system: row.system_name,
+      status: row.is_active ? ManualStatus.ACTIVE : ManualStatus.INACTIVE,
+      updatedAt: new Date(row.updated_at)
+    }));
+    return NextResponse.json(manuals, { status: 200 });
   } catch (error: unknown) {
     console.error(" DATABASE ERROR:", (error as Error).message);
     return NextResponse.json(

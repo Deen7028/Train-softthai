@@ -11,7 +11,7 @@ export const useManualTable = (
   const [data, setData] = useState<IManual[]>(initialData);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(8);
+  const rowsPerPage = 8;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [systemFilter, setSystemFilter] = useState("");
@@ -31,17 +31,50 @@ export const useManualTable = (
 
         const result = await response.json();
 
-        const mappedData: IManual[] = result.map((item: unknown) => ({
-          id: String((item as { id: string }).id),
-          title: (item as { manual_name: string }).manual_name,
-          system: (item as { system_name: string }).system_name,
-          status:
-            (item as { is_active: number }).is_active === 1
-              ? "ACTIVE"
-              : "INACTIVE",
-          updatedAt: new Date((item as { updated_at: string }).updated_at),
-          order: (item as { sequence_number: number }).sequence_number,
-        }));
+        const mappedData: IManual[] = (result as unknown[]).map((item) => {
+          const record = item as Record<string, unknown>;
+          const idValue = record.id ?? record.sequence_number;
+          const titleValue =
+            record.title ?? record.manual_name ?? record.manualName;
+          const systemValue =
+            record.system ?? record.system_name ?? record.systemName;
+          const statusValue = record.status ?? record.is_active;
+          const updatedAtValue =
+            record.updatedAt ?? record.updated_at ?? record.updated_at_at;
+          const orderValue = record.order ?? record.sequence_number;
+
+          const id =
+            typeof idValue === "number"
+              ? idValue.toString()
+              : typeof idValue === "string"
+                ? idValue
+                : "";
+          const title = typeof titleValue === "string" ? titleValue : "";
+          const system = typeof systemValue === "string" ? systemValue : "";
+          const status =
+            typeof statusValue === "number"
+              ? statusValue === 1
+                ? "ใช้งาน"
+                : "ไม่ใช้งาน"
+              : typeof statusValue === "string"
+                ? statusValue
+                : "ไม่ใช้งาน";
+          const updatedAt =
+            typeof updatedAtValue === "string" ||
+            typeof updatedAtValue === "number"
+              ? new Date(updatedAtValue)
+              : undefined;
+          const order = typeof orderValue === "number" ? orderValue : undefined;
+
+          return {
+            id,
+            title,
+            system,
+            status,
+            updatedAt,
+            order,
+          } as IManual;
+        });
 
         setData(mappedData);
       } catch (error) {
