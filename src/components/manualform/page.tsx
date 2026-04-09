@@ -6,11 +6,12 @@ import {
     IconButton, Switch, FormControl, Paper, Divider, Grid
 } from '@mui/material';
 import { CloudUpload, Delete, Download, ArrowBackIos, Save } from '@mui/icons-material';
-import { ManualStatus } from '@/enum';
-import { IManual } from '@/interfaces';
+import { ManualStatus } from '@/src/enum';
+import { IManual } from '@/src/interfaces';
 import Link from 'next/link';
-import { useManualForm } from '@/app/manual/manage/useManualForm';
-import { MOCK_MANUALS } from '@/app/manual/mock';
+import { useManualForm } from '@/src/app/manual/manage/useManualForm';
+import { MOCK_MANUALS } from '@/src/app/manual/mock';
+
 interface ManualFormProps {
     initialData?: IManual;
 }

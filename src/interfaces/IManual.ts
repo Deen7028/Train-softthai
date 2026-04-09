@@ -1,5 +1,6 @@
 // interfaces/manual.interface.ts
-import { ManualStatus } from "@/enum/ManualStatus";
+
+import { ManualStatus } from "../enum";
 
 export interface IManual {
   id?: string;

@@ -9,10 +9,10 @@ import {
 } from '@mui/material';
 import { Edit, Info, Add, Search, Refresh } from '@mui/icons-material';
 import Link from 'next/link';
-import { IManualTableProps, IManual } from '@/interfaces';
-import { ManualStatus } from '@/enum';
+import { IManualTableProps, IManual } from '@/src/interfaces';
+import { ManualStatus } from '@/src/enum';
 import { useManualTable } from './useManualTable';
-import { formatThaiDate } from '@/utils/formatDate';
+import { formatThaiDate } from '@/src/utils/formatDate';
 
 export default function ManualTablePage({ columns, data, apiUrl }: IManualTableProps & { apiUrl?: string }) {
     const {
@@ -24,7 +24,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
         handlePageChange, handleSelectPage,
         isLoading,
         handleOrderChange,
-        totalItems 
+        totalItems
     } = useManualTable(apiUrl, data as IManual[]);
 
     return (
@@ -102,7 +102,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
 
             {/* Table Section */}
             <Grid size={12}>
-                <TableContainer  component={Paper} sx={{ borderRadius: 3, boxShadow: 'none' }}>
+                <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 'none' }}>
                     <Table >
                         <TableHead sx={{ bgcolor: '#eeeeee' }}>
                             <TableRow>
@@ -147,9 +147,9 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                         <TableCell align="center">
                                             <FormControl size="small" sx={{ minWidth: 60 }}>
                                                 <Select
-                                                    value={row.order || (page - 1) * 8 + (index + 1)} // ดึงจาก row.order ถ้าไม่มีให้รันตาม Index
-                                                    onChange={(e) => handleOrderChange(row.id, e.target.value)}
-                                                    sx={{ height: 35, fontSize: '0.875 r em' }}
+                                                    value={row.order || (page - 1) * 8 + (index + 1)}
+                                                    onChange={(e) => handleOrderChange(row.id, Number(e.target.value))}
+                                                    sx={{ height: 35, fontSize: '0.875rem' }}
                                                 >
                                                     {[...Array(totalItems || paginatedData.length)].map((_, i) => (
                                                         <MenuItem key={i + 1} value={i + 1}>
@@ -171,7 +171,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                             </Typography>
                                         </TableCell>
                                         <TableCell sx={{ color: 'gray' }}>{formatThaiDate(row.updatedAt)}
-                                            <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white' ,mx:2}}>
+                                            <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white', mx: 2 }}>
                                                 <Info fontSize="inherit" />
                                             </IconButton>
                                         </TableCell>

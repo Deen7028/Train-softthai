@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { IManual } from '@/interfaces';
+import { IManual } from '@/src/interfaces';
 
 interface ManualContextType {
     manuals: IManual[];

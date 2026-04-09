@@ -1,7 +1,8 @@
 'use client';
 
-import ManualTablePage from "@/components/manualtable/page";
-import Navbar from "@/components/navbar/page";
+import { ManualTablePage } from "@/src/components";
+import Navbar from "@/src/components/navbar/page";
+
 
 const columns = [
   { id: 'title', label: 'ชื่อคู่มือ' },
@@ -21,5 +22,6 @@ export default function ManualPage() {
         data={[]}
         apiUrl="/api/manual"
       />
-    </>);
+    </>
+  );
 }

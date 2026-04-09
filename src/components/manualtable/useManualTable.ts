@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { IManual } from "@/interfaces";
+import { IManual } from "@/src/interfaces";
 import { SelectChangeEvent } from "@mui/material";
 
 export const useManualTable = (
@@ -64,7 +64,7 @@ export const useManualTable = (
             typeof updatedAtValue === "number"
               ? new Date(updatedAtValue)
               : undefined;
-          const order = typeof orderValue === "number" ? orderValue : undefined;
+          const order = orderValue != null ? Number(orderValue) : undefined;
 
           return {
             id,
@@ -117,8 +117,14 @@ export const useManualTable = (
 
   const totalItems = filteredData.length;
 
-  const handleOrderChange = (id: string | undefined, newOrder: number) => {
+  const handleOrderChange = async (
+    id: string | undefined,
+    newOrder: number,
+  ) => {
     if (!id) return;
+
+    let updatedItems: IManual[] = [];
+
     setData((prevData) => {
       const existing = prevData.find((item) => item.id === id);
       if (!existing) return prevData;
@@ -132,9 +138,30 @@ export const useManualTable = (
         ...rest.slice(targetIndex),
       ];
 
-      // set order field จาก index ใหม่ (ไม่บังคับ แต่ช่วยให้ value แสดงถูกต้อง)
-      return updated.map((item, index) => ({ ...item, order: index + 1 }));
+      updatedItems = updated.map((item, index) => ({
+        ...item,
+        order: index + 1,
+      }));
+      return updatedItems;
     });
+
+    // เพิ่มส่วนของการเรียก API เพื่อไปแก้ไข order ในฐานข้อมูลจริง
+    if (updatedItems.length > 0) {
+      try {
+        await fetch("/api/manual/reorder", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: updatedItems.map((item) => ({
+              id: item.id,
+              order: item.order,
+            })),
+          }),
+        });
+      } catch (error) {
+        console.error("Failed to update order in database:", error);
+      }
+    }
   };
 
   const handlePageChange = (_: React.ChangeEvent<unknown>, value: number) =>

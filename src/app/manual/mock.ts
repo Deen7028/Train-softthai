@@ -1,5 +1,5 @@
-import { IManual } from "@/interfaces";
-import { ManualStatus } from "@/enum";
+import { IManual } from "@/src/interfaces";
+import { ManualStatus } from "@/src/enum";
 
 export const MOCK_MANUALS: IManual[] = [
   {

@@ -3,8 +3,8 @@
 import { useState, useEffect, ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { SelectChangeEvent } from "@mui/material";
-import { IManual } from "@/interfaces";
-import { ManualStatus } from "@/enum";
+import { IManual } from "@/src/interfaces";
+import { ManualStatus } from "@/src/enum";
 import { useManualContext } from "../ManualContext";
 
 export const useManualForm = (initialData?: IManual) => {
@@ -48,6 +48,7 @@ export const useManualForm = (initialData?: IManual) => {
     }
   };
 
+  // src/app/manual/manage/useManualForm.ts
 
   const handleSubmit = async () => {
     if (!title || !system) {
@@ -64,13 +65,23 @@ export const useManualForm = (initialData?: IManual) => {
       formData.append("status", status ? "ACTIVE" : "INACTIVE");
       if (selectedFile) formData.append("file", selectedFile);
 
-      
-      const response = await fetch("/api/manual", {
+      // 1. เพิ่มตัวแปร url เพื่อเช็คว่าเป็นแบบ POST หรือ PUT
+      const apiUrl = initialData?.id
+        ? `/api/manual/${initialData.id}`
+        : "/api/manual";
+
+      // 2. เรียกใช้ fetch ด้วย apiUrl ที่ถูกต้อง
+      const response = await fetch(apiUrl, {
         method: initialData?.id ? "PUT" : "POST",
         body: formData,
       });
 
-      if (!response.ok) throw new Error("บันทึกลง Database ล้มเหลว");
+      if (!response.ok) {
+        // เพิ่มการอ่าน error จาก API เผื่อไว้ดูใน Console ว่า Backend แตกเรื่องอะไร
+        const errorData = await response.json().catch(() => null);
+        console.error("API Error Response:", errorData);
+        throw new Error("บันทึกลง Database ล้มเหลว");
+      }
 
       alert("บันทึกข้อมูลสำเร็จ!");
       router.push("/manual");
@@ -80,7 +91,7 @@ export const useManualForm = (initialData?: IManual) => {
       alert("เกิดข้อผิดพลาดในการเชื่อมต่อ Database");
     }
   };
-
+  
   return {
     state: { system, title, description, status, selectedFile },
     manuals,
