@@ -103,11 +103,11 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
             {/* Table Section */}
             <Grid size={12}>
                 <TableContainer  component={Paper} sx={{ borderRadius: 3, boxShadow: 'none' }}>
-                    <Table sx={{ fullWith: '100%' }}>
+                    <Table >
                         <TableHead sx={{ bgcolor: '#eeeeee' }}>
                             <TableRow>
                                 <TableCell align="center" sx={{ width: 50 }}>
-                                    <Link href="/manual/manage" passHref>
+                                    <Link href="manual/manage" >
                                         <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white' }}>
                                             <Add fontSize="small" />
                                         </IconButton>
@@ -151,7 +151,6 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                                     onChange={(e) => handleOrderChange(row.id, e.target.value)}
                                                     sx={{ height: 35, fontSize: '0.875 r em' }}
                                                 >
-                                                    {/* สร้างตัวเลือกตัวเลขตามจำนวน data ทั้งหมดที่มี */}
                                                     {[...Array(totalItems || paginatedData.length)].map((_, i) => (
                                                         <MenuItem key={i + 1} value={i + 1}>
                                                             {i + 1}

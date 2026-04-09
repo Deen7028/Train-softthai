@@ -13,7 +13,6 @@ export const useManualTable = (
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(8);
 
-  // State สำหรับตัวกรองต่างๆ
   const [searchQuery, setSearchQuery] = useState("");
   const [systemFilter, setSystemFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -31,7 +30,20 @@ export const useManualTable = (
         if (!response.ok) throw new Error("Failed to fetch API");
 
         const result = await response.json();
-        setData(result);
+
+        const mappedData: IManual[] = result.map((item: unknown) => ({
+          id: String((item as { id: string }).id),
+          title: (item as { manual_name: string }).manual_name,
+          system: (item as { system_name: string }).system_name,
+          status:
+            (item as { is_active: number }).is_active === 1
+              ? "ACTIVE"
+              : "INACTIVE",
+          updatedAt: new Date((item as { updated_at: string }).updated_at),
+          order: (item as { sequence_number: number }).sequence_number,
+        }));
+
+        setData(mappedData);
       } catch (error) {
         console.error("Error fetching manual data:", error);
       } finally {
@@ -74,7 +86,6 @@ export const useManualTable = (
 
   const handleOrderChange = (id: string | undefined, newOrder: number) => {
     if (!id) return;
-
     setData((prevData) => {
       const existing = prevData.find((item) => item.id === id);
       if (!existing) return prevData;

@@ -1,50 +1,43 @@
 import { NextResponse } from "next/server";
+import pool from "@/lib/db";
 
-// สำหรับการรับข้อมูล สร้างใหม่ (POST)
 export async function POST(request: Request) {
   try {
-    // 1. รับข้อมูล FormData ที่ส่งมาจากหน้าบ้าน (Frontend)
     const formData = await request.formData();
+    const title = formData.get("title")?.toString();
+    const system = formData.get("system")?.toString();
+    const status = formData.get("status")?.toString();
 
-    const title = formData.get("title");
-    const system = formData.get("system");
-    const description = formData.get("description");
-    const status = formData.get("status");
-    const file = formData.get("file") as File | null;
+    const sql = `
+      INSERT INTO system_manuals 
+      (sequence_number, manual_name, system_name, is_active, updated_at, created_at) 
+      VALUES (?, ?, ?, ?, NOW(), NOW())
+    `;
 
-    console.log("ได้รับข้อมูลสำหรับสร้างใหม่:", {
-      title,
-      system,
-      description,
-      status,
-    });
-    if (file) {
-      console.log("ได้รับไฟล์:", file.name, "ขนาด:", file.size, "bytes");
-    }
+    const values = [1, title, system, status === "ACTIVE" ? 1 : 0];
 
-    return NextResponse.json({ message: "เพิ่มข้อมูลสำเร็จ" }, { status: 201 });
-  } catch (error) {
-    console.error("API Error:", error);
+    const [result] = await pool.query(sql, values);
+
+    return NextResponse.json({ success: true, result }, { status: 201 });
+  } catch (error: unknown) {
+    console.error(" DATABASE ERROR:", (error as Error).message);
     return NextResponse.json(
-      { message: "เกิดข้อผิดพลาดทางฝั่งเซิร์ฟเวอร์" },
+      { error: (error as Error).message },
       { status: 500 },
     );
   }
 }
 
-export async function PUT(request: Request) {
+export async function GET(request: Request) {
   try {
-    const formData = await request.formData();
-    const id = formData.get("id"); 
-    const title = formData.get("title");
-
-    console.log(`ได้รับคำสั่งให้อัปเดตข้อมูล ID: ${id}`);
-
+    const sql = "SELECT * FROM system_manuals ORDER BY sequence_number ASC";
+    const [rows] = await pool.query(sql);
+    return NextResponse.json(rows, { status: 200 });
+  } catch (error: unknown) {
+    console.error(" DATABASE ERROR:", (error as Error).message);
     return NextResponse.json(
-      { message: "อัปเดตข้อมูลสำเร็จ" },
-      { status: 200 },
+      { error: (error as Error).message },
+      { status: 500 },
     );
-  } catch (error) {
-    return NextResponse.json({ message: "เกิดข้อผิดพลาด" }, { status: 500 });
   }
 }

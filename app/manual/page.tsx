@@ -1,7 +1,6 @@
 'use client';
 
 import ManualTablePage from "@/components/manualtable/page";
-import { useManualContext } from "./ManualContext";
 import Navbar from "@/components/navbar/page";
 
 const columns = [
@@ -11,14 +10,16 @@ const columns = [
   { id: 'updatedAt', label: 'ปรับปรุงล่าสุด' },
 ];
 
-function ManualContent() {
-  const { manuals } = useManualContext();
-  return <ManualTablePage columns={columns} data={manuals} />;
-}
+
 
 export default function ManualPage() {
-  return (<>
-    <Navbar></Navbar>
-    <ManualContent />
-  </>);
+  return (
+    <>
+      <Navbar />
+      <ManualTablePage
+        columns={columns}
+        data={[]}
+        apiUrl="/api/manual"
+      />
+    </>);
 }

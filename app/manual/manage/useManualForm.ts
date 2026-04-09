@@ -48,6 +48,7 @@ export const useManualForm = (initialData?: IManual) => {
     }
   };
 
+
   const handleSubmit = async () => {
     if (!title || !system) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน");
@@ -55,27 +56,28 @@ export const useManualForm = (initialData?: IManual) => {
     }
 
     try {
-      const newManual: IManual = {
-        id: id,
-        system,
-        title,
-        status: status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE,
-        createdAt: initialData?.createdAt || new Date(),
-        updatedAt: new Date(),
-      };
+      const formData = new FormData();
+      if (initialData?.id) formData.append("id", initialData.id);
+      formData.append("title", title);
+      formData.append("system", system);
+      formData.append("description", description);
+      formData.append("status", status ? "ACTIVE" : "INACTIVE");
+      if (selectedFile) formData.append("file", selectedFile);
 
-      if (initialData?.id) {
-        updateManual(initialData.id, newManual);
-      } else {
-        addManual(newManual);
-      }
+      
+      const response = await fetch("/api/manual", {
+        method: initialData?.id ? "PUT" : "POST",
+        body: formData,
+      });
+
+      if (!response.ok) throw new Error("บันทึกลง Database ล้มเหลว");
 
       alert("บันทึกข้อมูลสำเร็จ!");
       router.push("/manual");
       router.refresh();
     } catch (error) {
       console.error("Submit Error:", error);
-      alert("ไม่สามารถบันทึกข้อมูลได้");
+      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ Database");
     }
   };
 
