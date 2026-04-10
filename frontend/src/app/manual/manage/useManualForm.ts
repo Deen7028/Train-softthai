@@ -47,9 +47,7 @@ export const useManualForm = (initialData?: IManual) => {
       URL.revokeObjectURL(url);
     }
   };
-
-  // src/app/manual/manage/useManualForm.ts
-
+  
   const handleSubmit = async () => {
     if (!title || !system) {
       alert("กรุณากรอกข้อมูลให้ครบถ้วน");
@@ -66,8 +64,8 @@ export const useManualForm = (initialData?: IManual) => {
       if (selectedFile) formData.append("file", selectedFile);
 
       const apiUrl = initialData?.id
-        ? `http://localhost:5214/api/manual/${initialData.id}`
-        : "http://localhost:5214/api/manual";
+        ? `${process.env.NEXT_PUBLIC_API_URL}/manual/${initialData.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/manual`;
 
       const response = await fetch(apiUrl, {
         method: initialData?.id ? "PUT" : "POST",

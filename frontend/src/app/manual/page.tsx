@@ -3,7 +3,7 @@
 import { ManualTablePage } from "@/src/components";
 import Navbar from "@/src/components/navbar/page";
 
-
+const emptyData: unknown[] = [];
 const columns = [
   { id: 'title', label: 'ชื่อคู่มือ' },
   { id: 'system', label: 'ระบบ' },
@@ -11,7 +11,7 @@ const columns = [
   { id: 'updatedAt', label: 'ปรับปรุงล่าสุด' },
 ];
 
-
+const apiUrl = process.env.NEXT_PUBLIC_API_URL
 
 export default function ManualPage() {
   return (
@@ -19,8 +19,8 @@ export default function ManualPage() {
       <Navbar />
       <ManualTablePage
         columns={columns}
-        data={[]}
-        apiUrl="http://localhost:5214/api/manual"
+        data={emptyData}
+        apiUrl={`${apiUrl}/manual`}
       />
     </>
   );

@@ -85,7 +85,7 @@ export const useManualTable = (
     };
 
     fetchData();
-  }, [apiUrl, initialData]);
+  }, [apiUrl]);
 
   // ดึงรายการ "ระบบ" แบบไม่ซ้ำจากข้อมูลที่มีอยู่ เพื่อนำไปแสดงใน Dropdown
   const systemOptions = useMemo(() => {
@@ -145,10 +145,11 @@ export const useManualTable = (
       return updatedItems;
     });
 
-    // เพิ่มส่วนของการเรียก API เพื่อไปแก้ไข order ในฐานข้อมูลจริง
+    
     if (updatedItems.length > 0) {
       try {
-        await fetch("http://localhost:5214/api/manual/reorder", {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        await fetch(`${apiUrl}/manual/reorder`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
