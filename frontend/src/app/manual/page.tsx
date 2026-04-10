@@ -11,7 +11,7 @@ const columns = [
   { id: 'updatedAt', label: 'ปรับปรุงล่าสุด' },
 ];
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5124/api';
 
 export default function ManualPage() {
   return (

@@ -14,9 +14,9 @@ const ManualContext = createContext<ManualContextType | undefined>(undefined);
 
 export const ManualProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [manuals, setManuals] = useState<IManual[]>([]);
-
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5124/api';
     useEffect(() => {
-        fetch('/api/manual')
+        fetch(`${apiUrl}/manual`)
             .then(res => res.json())
             .then(data => setManuals(data))
             .catch(console.error);

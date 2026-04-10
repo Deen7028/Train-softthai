@@ -27,8 +27,12 @@ export const useManualTable = (
       setIsLoading(true);
       try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Failed to fetch API");
-
+        if (!response.ok) {
+          console.error(
+            `🚨 API Error! URL: ${apiUrl} | Status: ${response.status}`,
+          );
+          throw new Error(`Failed to fetch API (Status: ${response.status})`);
+        }
         const result = await response.json();
 
         const mappedData: IManual[] = (result as unknown[]).map((item) => {
@@ -145,7 +149,6 @@ export const useManualTable = (
       return updatedItems;
     });
 
-    
     if (updatedItems.length > 0) {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;

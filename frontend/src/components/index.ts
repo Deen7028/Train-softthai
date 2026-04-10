@@ -1,1 +1,1 @@
-export { default as ManualTablePage } from './manualtable/page';
+export { default as ManualTablePage } from './manualtable/manualtable';
