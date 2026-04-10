@@ -1,0 +1,1 @@
+export { default as ManualTablePage } from './manualtable/page';

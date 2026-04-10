@@ -1,0 +1,96 @@
+import { IManual } from "@/src/interfaces";
+import { ManualStatus } from "@/src/enum";
+
+export const MOCK_MANUALS: IManual[] = [
+  {
+    id: "1",
+    title: "คู่มือการใช้งานระบบลางาน",
+    system: "ระบบลางาน",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-02-13T13:00:00"),
+  },
+  {
+    id: "2",
+    title: "คู่มือการใช้งานระบบเช็คชื่อพนักงาน",
+    system: "ระบบเช็คชื่อ",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-02-19T09:30:00"),
+  },
+  {
+    id: "3",
+    title: "คู่มือการใช้งานระบบประเมินพนักงาน",
+    system: "ระบบประเมินผล",
+    status: ManualStatus.INACTIVE,
+    updatedAt: new Date("2026-02-28T15:45:00"),
+  },
+  {
+    id: "4",
+    title: "คู่มือการใช้งานระบบเงินเดือน",
+    system: "ระบบเงินเดือน",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-03-01T10:15:00"),
+  },
+  {
+    id: "5",
+    title: "คู่มือการใช้งานระบบจัดการพนักงาน",
+    system: "ระบบ HR",
+    status: ManualStatus.INACTIVE,
+    updatedAt: new Date("2026-03-02T14:20:00"),
+  },
+  {
+    id: "6",
+    title: "คู่มือการใช้งานระบบอนุมัติเอกสาร",
+    system: "ระบบอนุมัติ",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-03-03T11:00:00"),
+  },
+  {
+    id: "7",
+    title: "คู่มือการใช้งานระบบแจ้งเตือน",
+    system: "ระบบแจ้งเตือน",
+    status: ManualStatus.INACTIVE,
+    updatedAt: new Date("2026-03-04T16:10:00"),
+  },
+  {
+    id: "8",
+    title: "คู่มือการใช้งานระบบรายงาน",
+    system: "ระบบรายงาน",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-03-05T08:50:00"),
+  },
+  {
+    id: "9",
+    title: "คู่มือการใช้งานระบบความปลอดภัย",
+    system: "ระบบความปลอดภัย",
+    status: ManualStatus.INACTIVE,
+    updatedAt: new Date("2026-03-06T13:25:00"),
+  },
+  {
+    id: "10",
+    title: "คู่มือการใช้งานระบบสิทธิ์ผู้ใช้งาน",
+    system: "ระบบสิทธิ์",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-03-07T17:40:00"),
+  },
+  {
+    id: "11",
+    title: "คู่มือการใช้งานระบบบันทึกเวลา",
+    system: "ระบบ Time Tracking",
+    status: ManualStatus.INACTIVE,
+    updatedAt: new Date("2026-03-08T12:00:00"),
+  },
+  {
+    id: "12",
+    title: "คู่มือการใช้งานระบบแจ้งซ่อม",
+    system: "ระบบแจ้งซ่อม",
+    status: ManualStatus.ACTIVE,
+    updatedAt: new Date("2026-03-09T09:10:00"),
+  },
+  {
+    id: "13",
+    title: "คู่มือการใช้งานระบบจัดการเอกสาร",
+    system: "ระบบเอกสาร",
+    status: ManualStatus.INACTIVE,
+    updatedAt: new Date("2026-03-10T15:30:00"),
+  },
+];
