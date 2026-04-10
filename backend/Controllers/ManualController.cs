@@ -23,7 +23,7 @@ namespace backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetManuals()
         {
-            var manuals = await _context.SystemManuals
+            var manuals = await _context.Tbmanuals
                 .OrderBy(m => m.SequenceNumber)
                 .ToListAsync();
 
@@ -48,8 +48,8 @@ namespace backend.Controllers
             try
             {
                 // หาเลขลำดับล่าสุด
-                int maxSeq = await _context.SystemManuals.AnyAsync()
-                    ? await _context.SystemManuals.MaxAsync(m => m.SequenceNumber)
+                int maxSeq = await _context.Tbmanuals.AnyAsync()
+                    ? await _context.Tbmanuals.MaxAsync(m => m.SequenceNumber)
                     : 0;
 
                 var newManual = new SystemManual
@@ -62,7 +62,7 @@ namespace backend.Controllers
                     UpdatedAt = DateTime.Now
                 };
 
-                _context.SystemManuals.Add(newManual);
+                _context.Tbmanuals.Add(newManual);
                 await _context.SaveChangesAsync();
 
                 return CreatedAtAction(nameof(GetManuals), new { id = newManual.Id }, new { success = true });
@@ -77,7 +77,7 @@ namespace backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateManual(int id, [FromForm] string title, [FromForm] string system, [FromForm] string status)
         {
-            var manual = await _context.SystemManuals.FirstOrDefaultAsync(m => m.Id == id);
+            var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
             if (manual == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
 
             manual.ManualName = title ?? manual.ManualName;
@@ -94,18 +94,16 @@ namespace backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteManual(int id)
         {
-            var manual = await _context.SystemManuals.FirstOrDefaultAsync(m => m.Id == id);
+            var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
             if (manual == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
 
-            _context.SystemManuals.Remove(manual);
+            _context.Tbmanuals.Remove(manual);
             await _context.SaveChangesAsync();
 
             return Ok(new { success = true });
         }
 
-        // -----------------------------------------------------------
-        // 5. PUT: api/manual/reorder (รับข้อมูลเป็น List เพื่อสลับลำดับ)
-        // -----------------------------------------------------------
+        
         [HttpPut("reorder")]
         public async Task<IActionResult> ReorderManuals([FromBody] List<ReorderRequest> items)
         {
@@ -114,7 +112,7 @@ namespace backend.Controllers
                 foreach (var item in items)
                 {
                     // ค้นหาคู่มือตาม ID
-                    var manual = await _context.SystemManuals.FirstOrDefaultAsync(m => m.Id == item.Id);
+                    var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == item.Id);
                     if (manual != null)
                     {
                         // อัปเดตเลขลำดับใหม่ (SequenceNumber)

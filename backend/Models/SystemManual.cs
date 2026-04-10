@@ -1,32 +1,31 @@
-// Models/SystemManual.cs
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace backend.Models
 {
-    [Table("system_manuals")]
+    [Table("Tbmanuals")]
     public class SystemManual
     {
         [Key]
-        [Column("id")]
+        [Column("nId")]
         public int Id { get; set; }
 
-        [Column("sequence_number")]
+        [Column("nSequence_number")]
         public int SequenceNumber { get; set; }
 
-        [Column("manual_name")]
+        [Column("sManualName")]
         public string ManualName { get; set; } = string.Empty;
 
-        [Column("system_name")]
+        [Column("sSystemName")]
         public string SystemName { get; set; } = string.Empty;
 
-        [Column("is_active")]
+        [Column("isActive")]
         public bool IsActive { get; set; } = true;
 
-        [Column("created_at")]
+        [Column("dCreated_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        [Column("updated_at")]
+        [Column("dUpdated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 }

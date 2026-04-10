@@ -16,7 +16,6 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5124/api';
 export default function ManualPage() {
   return (
     <>
-      <Navbar />
       <ManualTablePage
         columns={columns}
         data={emptyData}

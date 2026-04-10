@@ -9,7 +9,6 @@ namespace backend.Data
         {
         }
 
-        // แจ้งให้ระบบรู้ว่าเรามีตาราง SystemManuals
-        public DbSet<SystemManual> SystemManuals { get; set; }
+        public DbSet<SystemManual> Tbmanuals { get; set; }
     }
 }
