@@ -40,7 +40,7 @@ namespace backend.Controllers
 
             return Ok(result);
         }
-        
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetManualById(int id)
         {
@@ -120,7 +120,6 @@ namespace backend.Controllers
 
             return Ok(new { success = true });
         }
-
 
         [HttpPut("reorder")]
         public async Task<IActionResult> ReorderManuals([FromBody] List<ReorderRequest> items)

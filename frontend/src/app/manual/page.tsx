@@ -1,7 +1,6 @@
 'use client';
 
 import { ManualTablePage } from "@/src/components";
-import Navbar from "@/src/components/navbar/page";
 
 const emptyData: unknown[] = [];
 const columns = [
