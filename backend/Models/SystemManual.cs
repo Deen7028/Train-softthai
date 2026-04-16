@@ -27,5 +27,8 @@ namespace backend.Models
 
         [Column("dUpdated_at")]
         public DateTime UpdatedAt { get; set; } = DateTime.Now;
+
+        [Column("nCreatedBy")]
+        public int? CreatedBy { get; set; }
     }
 }

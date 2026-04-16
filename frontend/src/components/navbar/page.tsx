@@ -42,7 +42,7 @@ export default function Navbar() {
                                 textDecoration: 'none',
                             }}
                         >
-                            MCS Booking
+                            Train SoftThai
                         </Typography>
                     </Stack>
 

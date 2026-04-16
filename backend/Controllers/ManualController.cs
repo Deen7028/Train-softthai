@@ -1,5 +1,6 @@
 // Controllers/ManualController.cs
 using backend.Data;
+using backend.DTOs;
 using backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -19,49 +20,54 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // 1. GET: api/manual 
         [HttpGet]
         public async Task<IActionResult> GetManuals()
         {
-            var manuals = await _context.Tbmanuals
-                .OrderBy(m => m.SequenceNumber)
-                .ToListAsync();
-
-            
-            var result = manuals.Select(row => new
-            {
-                id = row.Id.ToString(),
-                order = row.SequenceNumber,
-                title = row.ManualName,
-                system = row.SystemName,
-                status = row.IsActive ? "ACTIVE" : "INACTIVE",
-                updatedAt = row.UpdatedAt
-            });
-
+            var query = from manual in _context.Tbmanuals
+                        join user in _context.TmUsers on manual.CreatedBy equals user.Id into userGroup
+                        from user in userGroup.DefaultIfEmpty()
+                        select new
+                        {
+                            id = manual.Id,
+                            order = manual.SequenceNumber,
+                            title = manual.ManualName,
+                            system = manual.SystemName,
+                            status = manual.IsActive ? "ACTIVE" : "INACTIVE",
+                            creatorName = user != null ? user.UserName : "ไม่ระบุ",
+                            updatedAt = manual.UpdatedAt
+                        };
+            var result = await query.ToListAsync();
             return Ok(result);
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetManualById(int id)
         {
-            var row = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
+            var query = from manual in _context.Tbmanuals
+                        join user in _context.TmUsers on manual.CreatedBy equals user.Id into userGroup
+                        from user in userGroup.DefaultIfEmpty()
+                        where manual.Id == id
+                        select new
+                        {
+                            id = manual.Id,
+                            order = manual.SequenceNumber,
+                            title = manual.ManualName,
+                            system = manual.SystemName,
+                            status = manual.IsActive ? "ACTIVE" : "INACTIVE",
+                            createdBy = manual.CreatedBy,
+                            creatorName = user != null ? user.UserName : "ไม่ระบุ",
+                            updatedAt = manual.UpdatedAt
+                        };
 
-            if (row == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
+            var result = await query.FirstOrDefaultAsync();
 
-            var result = new
-            {
-                id = row.Id.ToString(),
-                order = row.SequenceNumber,
-                title = row.ManualName,
-                system = row.SystemName,
-                status = row.IsActive ? "ACTIVE" : "INACTIVE",
-                updatedAt = row.UpdatedAt
-            };
+            if (result == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
 
             return Ok(result);
         }
+
         [HttpPost]
-        public async Task<IActionResult> CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status)
+        public async Task<IActionResult> CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status, [FromForm] int? createdBy)
         {
             try
             {
@@ -76,6 +82,7 @@ namespace backend.Controllers
                     ManualName = title ?? "",
                     SystemName = system ?? "",
                     IsActive = status == "ACTIVE",
+                    CreatedBy = createdBy,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now
                 };
@@ -93,19 +100,41 @@ namespace backend.Controllers
 
         // 3. PUT: api/manual/{id} (แก้ไขข้อมูล)
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateManual(int id, [FromForm] string title, [FromForm] string system, [FromForm] string status)
+        public async Task<IActionResult> UpdateManual(int id, [FromBody] UpdateManual request)
         {
             var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
-            if (manual == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
 
-            manual.ManualName = title ?? manual.ManualName;
-            manual.SystemName = system ?? manual.SystemName;
-            manual.IsActive = status == "ACTIVE";
+            if (manual == null)
+                return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
+
+            if (!string.IsNullOrEmpty(request.Title))
+                manual.ManualName = request.Title;
+
+            if (!string.IsNullOrEmpty(request.System))
+                manual.SystemName = request.System;
+
+            if (!string.IsNullOrEmpty(request.Status))
+                manual.IsActive = request.Status.ToUpper() == "ACTIVE";
+
+            if (request.CreatedBy.HasValue)
+                manual.CreatedBy = request.CreatedBy.Value;
+
             manual.UpdatedAt = DateTime.Now;
 
             await _context.SaveChangesAsync();
 
-            return Ok(new { success = true });
+            return Ok(new
+            {
+                success = true,
+                data = new
+                {
+                    id = manual.Id,
+                    title = manual.ManualName,
+                    system = manual.SystemName,
+                    status = manual.IsActive ? "ACTIVE" : "INACTIVE",
+                    updatedAt = manual.UpdatedAt
+                }
+            });
         }
 
         // 4. DELETE: api/manual/{id} (ลบข้อมูล)
@@ -145,7 +174,7 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, new { error = "เกิดข้อผิดพลาดในการดึงข้อมูล: " + ex.Message });
             }
         }
     }

@@ -11,4 +11,6 @@ export interface IManual {
   order?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  createdBy?: number;
+  creatorName?: string;
 }

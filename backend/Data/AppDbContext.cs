@@ -7,8 +7,10 @@ namespace backend.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
+            
         }
 
         public DbSet<SystemManual> Tbmanuals { get; set; }
+        public DbSet<TmUser> TmUsers { get; set; }
     }
 }

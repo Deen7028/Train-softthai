@@ -116,7 +116,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                 <TableCell align="center" sx={{ width: 60 }}>แก้ไข</TableCell>
                                 <TableCell align="center" sx={{ width: 80 }}>ลำดับ</TableCell>
                                 {columns?.map((col) => (
-                                    <TableCell key={col.id} align={col.id === 'status' ? 'center' : 'left'}>
+                                    <TableCell key={col.id} align={col.id === 'status' ? 'center' : 'center'} sx={col.id === 'title' ? { maxWidth: 300 } : { color: 'text.secondary' }}>
                                         {col.label}
                                     </TableCell>
                                 ))}
@@ -167,7 +167,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                                 color: row.status === ManualStatus.ACTIVE ? 'green' : 'red',
                                                 fontWeight: 'medium'
                                             }}>
-                                                {row.status}
+                                                {row.status === "ACTIVE" ? "ใช้งาน" : "ไม่ใช้งาน"}
                                             </Typography>
                                         </TableCell>
                                         <TableCell sx={{ color: 'gray' }}>{formatThaiDate(row.updatedAt)}
@@ -175,6 +175,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                                 <Info fontSize="inherit" />
                                             </IconButton>
                                         </TableCell>
+                                        <TableCell sx={{ color: 'text.secondary' }}>{row.creatorName || '-'}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (

@@ -37,7 +37,10 @@ export const useManualTable = (
 
         const mappedData: IManual[] = (result as unknown[]).map((item) => {
           const record = item as Record<string, unknown>;
-          const idValue = record.id ?? record.sequence_number;
+          const idValue = record.id;
+          if (idValue === undefined || idValue === null) {
+            console.warn("❌ ไม่มี id จาก API:", record);
+          }
           const titleValue =
             record.title ?? record.manual_name ?? record.manualName;
           const systemValue =
@@ -46,6 +49,9 @@ export const useManualTable = (
           const updatedAtValue =
             record.updatedAt ?? record.updated_at ?? record.updated_at_at;
           const orderValue = record.order ?? record.sequence_number;
+          const creatorNameValue =
+            record.creatorName ?? record.creator_name ?? record.creatorname ??
+            record.userName ?? record.user_name;
 
           const id =
             typeof idValue === "number"
@@ -69,6 +75,8 @@ export const useManualTable = (
               ? new Date(updatedAtValue)
               : undefined;
           const order = orderValue != null ? Number(orderValue) : undefined;
+          const creatorName =
+            typeof creatorNameValue === "string" ? creatorNameValue : "";
 
           return {
             id,
@@ -77,8 +85,10 @@ export const useManualTable = (
             status,
             updatedAt,
             order,
+            creatorName,
           } as IManual;
         });
+        console.log("📊 mappedData:", mappedData);
 
         setData(mappedData);
       } catch (error) {
@@ -89,7 +99,7 @@ export const useManualTable = (
     };
 
     fetchData();
-  }, [apiUrl]);
+  }, [apiUrl, initialData]);
 
   // ดึงรายการ "ระบบ" แบบไม่ซ้ำจากข้อมูลที่มีอยู่ เพื่อนำไปแสดงใน Dropdown
   const systemOptions = useMemo(() => {
@@ -155,12 +165,12 @@ export const useManualTable = (
         await fetch(`${apiUrl}/manual/reorder`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: updatedItems.map((item) => ({
-              id: item.id,
+          body: JSON.stringify(
+            updatedItems.map((item) => ({
+              id: Number(item.id),
               order: item.order,
             })),
-          }),
+          ),
         });
       } catch (error) {
         console.error("Failed to update order in database:", error);

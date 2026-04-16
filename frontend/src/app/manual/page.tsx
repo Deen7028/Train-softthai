@@ -8,6 +8,7 @@ const columns = [
   { id: 'system', label: 'ระบบ' },
   { id: 'status', label: 'สถานะ' },
   { id: 'updatedAt', label: 'ปรับปรุงล่าสุด' },
+  { id: 'creatorName', label: 'ผู้สร้าง' },
 ];
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5124/api';

@@ -16,7 +16,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
     const { state, handlers } = useManualForm(initialData);
     const [systemOptions, setSystemOptions] = useState<string[]>([]);
     const [mounted, setMounted] = useState(false);
-
+    const [userOptions, setUserOptions] = useState<{ id: number; name: string }[]>([]);
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
@@ -31,7 +31,25 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                 console.error("Fetch systems error", err);
             }
         };
+
+        const fetchUsers = async () => {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5214/api";
+            try {
+                const res = await fetch(`${apiUrl}/user`); 
+                const data = await res.json();
+
+                setUserOptions(
+                    data.map((u: unknown) => ({
+                        id: (u as { nUserId: number }).nUserId,
+                        name: (u as { sUserName: string }).sUserName
+                    }))
+                );
+            } catch (err) {
+                console.error("Fetch users error", err);
+            }
+        };
         fetchSystems();
+        fetchUsers();
     }, []);
 
     if (!mounted) return null;
@@ -72,6 +90,26 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                             value={state.description}
                             onChange={handlers.setDescription}
                         />
+                    </Grid>
+
+                    <Grid size={12}>
+                        <FormControl fullWidth size="small">
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                                ผู้สร้าง *
+                            </Typography>
+                            <Select
+                                value={state.createdBy}
+                                onChange={(e) => handlers.setCreatedBy(e.target.value as string)}
+                                displayEmpty
+                            >
+                                <MenuItem value="" disabled>เลือกผู้ใช้</MenuItem>
+                                {userOptions.map((user) => (
+                                    <MenuItem key={user.id} value={user.id.toString()}>
+                                        {user.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid size={12}><Divider /></Grid>

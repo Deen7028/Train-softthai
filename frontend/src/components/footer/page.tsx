@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
 
 export default function Footer() {
@@ -6,14 +5,15 @@ export default function Footer() {
         <Box
             component="footer"
             sx={{
-                bgcolor: '#1976D2', 
-                py: 3, 
+                bgcolor: 'blue',
+                py: 3,
                 textAlign: 'center',
-                mt: 'auto', 
+                mt: 'auto',
+                color: 'white',
             }}
         >
             <Container maxWidth="lg">
-                <Typography variant="body2" sx={{ color: 'white', m: 0 }}>
+                <Typography variant="body2" sx={{ m: 0 }}>
                     Web Application Developer Module
                 </Typography>
             </Container>
