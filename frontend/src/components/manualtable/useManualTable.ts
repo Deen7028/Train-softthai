@@ -88,7 +88,6 @@ export const useManualTable = (
             creatorName,
           } as IManual;
         });
-        console.log("📊 mappedData:", mappedData);
 
         setData(mappedData);
       } catch (error) {

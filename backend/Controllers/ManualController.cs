@@ -179,7 +179,6 @@ namespace backend.Controllers
         }
     }
 
-    // สร้าง Class เล็กๆ ไว้รับข้อมูล List จาก Next.js (Id และ Order)
     public class ReorderRequest
     {
         public int Id { get; set; }

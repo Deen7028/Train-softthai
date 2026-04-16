@@ -61,7 +61,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                         >
                             <MenuItem value="">ระบบทั้งหมด</MenuItem>
                             {systemOptions.map((sys, index) => (
-                                <MenuItem key={index} value={sys}>{sys}</MenuItem>
+                                <MenuItem key={index} value={sys || ''}>{sys}</MenuItem>
                             ))}
                         </Select>
                     </Grid>
@@ -167,7 +167,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                                 color: row.status === ManualStatus.ACTIVE ? 'green' : 'red',
                                                 fontWeight: 'medium'
                                             }}>
-                                                {row.status === "ACTIVE" ? "ใช้งาน" : "ไม่ใช้งาน"}
+                                                {row.status === ManualStatus.ACTIVE ? "ใช้งาน" : "ไม่ใช้งาน"}
                                             </Typography>
                                         </TableCell>
                                         <TableCell sx={{ color: 'gray' }}>{formatThaiDate(row.updatedAt)}
