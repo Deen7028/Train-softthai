@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import Navbar from "../components/navbar/page";
 import Footer from "../components/footer/page";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v13-appRouter";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -29,10 +30,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <Navbar />
-        <Providers>{children}</Providers>
-        <Footer />
+      <body className="min-h-full flex flex-col"> 
+        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+          <Providers>{children}</Providers>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

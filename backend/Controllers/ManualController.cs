@@ -19,7 +19,7 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // 1. GET: api/manual (ดึงข้อมูลทั้งหมดไปโชว์ในตาราง)
+        // 1. GET: api/manual 
         [HttpGet]
         public async Task<IActionResult> GetManuals()
         {
@@ -27,7 +27,7 @@ namespace backend.Controllers
                 .OrderBy(m => m.SequenceNumber)
                 .ToListAsync();
 
-            // แปลงข้อมูลให้ตรงกับ Interface ของฝั่ง Next.js
+            
             var result = manuals.Select(row => new
             {
                 id = row.Id.ToString(),
@@ -40,8 +40,26 @@ namespace backend.Controllers
 
             return Ok(result);
         }
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetManualById(int id)
+        {
+            var row = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
 
-        // 2. POST: api/manual (เพิ่มคู่มือใหม่)
+            if (row == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
+
+            var result = new
+            {
+                id = row.Id.ToString(),
+                order = row.SequenceNumber,
+                title = row.ManualName,
+                system = row.SystemName,
+                status = row.IsActive ? "ACTIVE" : "INACTIVE",
+                updatedAt = row.UpdatedAt
+            };
+
+            return Ok(result);
+        }
         [HttpPost]
         public async Task<IActionResult> CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status)
         {
@@ -103,7 +121,7 @@ namespace backend.Controllers
             return Ok(new { success = true });
         }
 
-        
+
         [HttpPut("reorder")]
         public async Task<IActionResult> ReorderManuals([FromBody] List<ReorderRequest> items)
         {

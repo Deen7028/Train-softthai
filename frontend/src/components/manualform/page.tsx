@@ -1,44 +1,56 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box, TextField, Typography, Select, MenuItem, Button,
     IconButton, Switch, FormControl, Paper, Divider, Grid
 } from '@mui/material';
-import { CloudUpload, Delete, Download, ArrowBackIos, Save } from '@mui/icons-material';
+import { CloudUpload, Delete, ArrowBackIos, Save } from '@mui/icons-material';
 import { ManualStatus } from '@/src/enum';
 import { IManual } from '@/src/interfaces';
 import Link from 'next/link';
 import { useManualForm } from '@/src/app/manual/manage/useManualForm';
-import { MOCK_MANUALS } from '@/src/app/manual/mock';
-
-interface ManualFormProps {
-    initialData?: IManual;
-}
+import { ManualFormProps } from './ManualFormProps';
 
 export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
     const { state, handlers } = useManualForm(initialData);
-    const systemOptions = useMemo(() => {
-        const systems = MOCK_MANUALS.map((item) => item.system).filter(Boolean) as string[];
-        return Array.from(new Set(systems));
+    const [systemOptions, setSystemOptions] = useState<string[]>([]);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true);
+        const fetchSystems = async () => {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5214/api";
+            try {
+                const res = await fetch(`${apiUrl}/manual`);
+                const data: IManual[] = await res.json();
+                const uniqueSystems = Array.from(new Set(data.map(item => item.system).filter(Boolean)));
+                setSystemOptions(uniqueSystems as string[]);
+            } catch (err) {
+                console.error("Fetch systems error", err);
+            }
+        };
+        fetchSystems();
     }, []);
+
+    if (!mounted) return null;
+
     return (
         <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
             <Paper sx={{ p: { xs: 2, md: 4 }, borderRadius: 4, boxShadow: 'none' }}>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                    {initialData ? 'แก้ไขคู่มือ' : 'เพิ่มคู่มือ'}
+                    {initialData?.id ? 'แก้ไขคู่มือ' : 'เพิ่มคู่มือ'}
                 </Typography>
 
                 <Grid container spacing={3}>
                     <Grid size={12}>
                         <FormControl fullWidth size="small">
                             <Typography variant="body2" sx={{ mb: 1 }}>ระบบ *</Typography>
-                            <Select displayEmpty value={state.system} onChange={handlers.setSystem}>
+                            <Select displayEmpty value={state.system} onChange={(e) => handlers.setSystem(e.target.value as string)}>
                                 <MenuItem value="" disabled>เลือกระบบ</MenuItem>
                                 {systemOptions.map((sys, index) => (
-                                    <MenuItem key={index} value={sys}>
-                                        {sys}
-                                    </MenuItem>
+                                    <MenuItem key={index} value={sys}>{sys}</MenuItem>
                                 ))}
                             </Select>
                         </FormControl>
@@ -78,11 +90,10 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
 
                     {state.selectedFile && (
                         <Grid size={12}>
-                            <Grid container justifyContent="space-between" sx={{ p: 1, border: '1px solid #eee' }}>
+                            <Grid container justifyContent="space-between" alignItems="center" sx={{ p: 1, border: '1px solid #eee' }}>
                                 <Typography>{state.selectedFile.name}</Typography>
                                 <Box>
                                     <IconButton onClick={handlers.handleDeleteFile} color="error"><Delete /></IconButton>
-                                    <IconButton onClick={handlers.handleDownload} sx={{ color: '#4a148c' }}><Download /></IconButton>
                                 </Box>
                             </Grid>
                         </Grid>
@@ -90,23 +101,25 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
 
                     <Grid size={12}>
                         <Typography variant="body2">สถานะ *</Typography>
-                        <Switch checked={state.status} onChange={handlers.setStatus} color="success" />
-                        <Typography variant="caption">
-                            {state.status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Switch checked={state.status} onChange={handlers.setStatus} color="success" />
+                            <Typography variant="caption" sx={{ ml: 1 }}>
+                                {state.status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE}
+                            </Typography>
+                        </Box>
                     </Grid>
                 </Grid>
             </Paper>
 
             <Grid container spacing={2} justifyContent="space-between" sx={{ mt: 4 }}>
-                <Grid size={{ xs: 6, sm: 'auto' }}>
+                <Grid size="auto">
                     <Link href="/manual" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<ArrowBackIos />} sx={{ bgcolor: '#757575' }}>
                             ย้อนกลับ
                         </Button>
                     </Link>
                 </Grid>
-                <Grid size={{ xs: 6, sm: 'auto' }}>
+                <Grid size="auto">
                     <Button variant="contained" startIcon={<Save />} onClick={handlers.handleSubmit} sx={{ bgcolor: '#4a148c' }}>
                         บันทึก
                     </Button>
