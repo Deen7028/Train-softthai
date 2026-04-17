@@ -1,9 +1,5 @@
-using backend.Data;
-using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace backend.Controllers
@@ -12,25 +8,17 @@ namespace backend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IUserService _userService;
 
-        public UserController(AppDbContext context)
+        public UserController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _context.TmUsers
-                .Where(u => u.IsActive)
-                .Select(u => new
-                {
-                    nUserId = u.Id,
-                    sUserName = u.UserName,
-                })
-                .ToListAsync();
-
+            var users = await _userService.GetUsersAsync();
             return Ok(users);
         }
     }

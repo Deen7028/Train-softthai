@@ -7,7 +7,7 @@ import {
     Typography, Pagination, InputAdornment, Grid, CircularProgress,
     FormControl
 } from '@mui/material';
-import { Edit, Info, Add, Search, Refresh } from '@mui/icons-material';
+import { Edit, Info, Add, Search, Refresh, Delete } from '@mui/icons-material';
 import Link from 'next/link';
 import { IManualTableProps, IManual } from '@/src/interfaces';
 import { ManualStatus } from '@/src/enum';
@@ -24,7 +24,11 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
         handlePageChange, handleSelectPage,
         isLoading,
         handleOrderChange,
-        totalItems
+        totalItems,
+        selectedItems,
+        handleSelectAllClick,
+        handleClick,
+        handleDeleteSelected
     } = useManualTable(apiUrl, data as IManual[]);
 
     return (
@@ -107,13 +111,20 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                         <TableHead sx={{ bgcolor: '#eeeeee' }}>
                             <TableRow>
                                 <TableCell align="center" sx={{ width: 50 }}>
+                                    <Checkbox
+                                        indeterminate={selectedItems.length > 0 && selectedItems.length < paginatedData.length}
+                                        checked={paginatedData.length > 0 && selectedItems.length === paginatedData.length}
+                                        onChange={handleSelectAllClick}
+                                        size="small"
+                                    />
+                                </TableCell>
+                                <TableCell align="center" sx={{ width: 50 }}>
                                     <Link href="manual/manage" >
                                         <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white' }}>
                                             <Add fontSize="small" />
                                         </IconButton>
                                     </Link>
                                 </TableCell>
-                                <TableCell align="center" sx={{ width: 60 }}>แก้ไข</TableCell>
                                 <TableCell align="center" sx={{ width: 80 }}>ลำดับ</TableCell>
                                 {columns?.map((col) => (
                                     <TableCell key={col.id} align={col.id === 'status' ? 'center' : 'center'} sx={col.id === 'title' ? { maxWidth: 300 } : { color: 'text.secondary' }}>
@@ -133,8 +144,14 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                 </TableRow>
                             ) : paginatedData.length > 0 ? (
                                 paginatedData.map((row, index) => (
-                                    <TableRow key={row.id || index} hover>
-                                        <TableCell align="center"><Checkbox size="small" /></TableCell>
+                                    <TableRow key={row.id || index} hover selected={selectedItems.indexOf(row.id!) !== -1}>
+                                        <TableCell align="center">
+                                            <Checkbox
+                                                size="small"
+                                                checked={selectedItems.indexOf(row.id!) !== -1}
+                                                onChange={() => handleClick(row.id!)}
+                                            />
+                                        </TableCell>
                                         <TableCell align="center">
                                             <Link href={`/manual/manage/${row.id}`} passHref>
                                                 <IconButton size="small" sx={{ color: 'orange' }}>
@@ -170,12 +187,12 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                                 {row.status === ManualStatus.ACTIVE ? "ใช้งาน" : "ไม่ใช้งาน"}
                                             </Typography>
                                         </TableCell>
-                                        <TableCell sx={{ color: 'gray' }}>{formatThaiDate(row.updatedAt)}
+                                        <TableCell sx={{ color: 'gray', textAlign: 'center' }}>{formatThaiDate(row.updatedAt)}
                                             <IconButton size="small" sx={{ bgcolor: '#4a148c', color: 'white', mx: 2 }}>
                                                 <Info fontSize="inherit" />
                                             </IconButton>
                                         </TableCell>
-                                        <TableCell sx={{ color: 'text.secondary' }}>{row.creatorName || '-'}</TableCell>
+                                        <TableCell sx={{ color: 'text.secondary', textAlign: 'center' }}>{row.creatorName || '-'}</TableCell>
                                     </TableRow>
                                 ))
                             ) : (
@@ -187,31 +204,49 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                             )}
                         </TableBody>
                     </Table>
-
-                    {/* Pagination Section */}
-                    {paginatedData.length > 0 && !isLoading && (
-                        <Grid container spacing={2} sx={{ p: 2, borderTop: '1px solid #eee' }} justifyContent="flex-end" alignItems="center">
+                    <Grid container sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+                        {selectedItems.length > 0 ? (
                             <Grid size="auto">
-                                <Pagination count={count} page={page} onChange={handlePageChange} shape="rounded" color="primary" size="small" />
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    startIcon={<Delete />}
+                                    onClick={handleDeleteSelected}
+                                >
+                                    ({selectedItems.length})
+                                </Button>
                             </Grid>
-                            <Grid size="auto">
-                                <Grid container spacing={1} alignItems="center">
-                                    <Grid size="auto">
-                                        <Typography variant="body2" color="text.secondary">ไปหน้า</Typography>
-                                    </Grid>
-                                    <Grid size="auto">
-                                        <Select size="small" value={page} onChange={handleSelectPage} sx={{ height: 30, minWidth: 60 }}>
-                                            {[...Array(count)].map((_, i) => (
-                                                <MenuItem key={i + 1} value={i + 1}>{i + 1}</MenuItem>
-                                            ))}
-                                        </Select>
+                        ) : (
+                            <Grid size="auto" />
+                        )}
+                        {/* Pagination Section */}
+                        {paginatedData.length > 0 && !isLoading && (
+                            <Grid container spacing={2} sx={{ p: 2, borderTop: '1px solid #eee', ml: 'auto' }} justifyContent="flex-end" alignItems="center">
+                                <Grid size="auto">
+                                    <Pagination count={count} page={page} onChange={handlePageChange} shape="rounded" color="primary" size="small" />
+                                </Grid>
+                                <Grid size="auto">
+                                    <Grid container spacing={1} alignItems="center">
+                                        <Grid size="auto">
+                                            <Typography variant="body2" color="text.secondary">ไปหน้า</Typography>
+                                        </Grid>
+                                        <Grid size="auto">
+                                            <Select size="small" value={page} onChange={handleSelectPage} sx={{ height: 30, minWidth: 60 }}>
+                                                {[...Array(count)].map((_, i) => (
+                                                    <MenuItem key={i + 1} value={i + 1}>{i + 1}</MenuItem>
+                                                ))}
+                                            </Select>
+                                        </Grid>
                                     </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    )}
+                        )}
+                    </Grid>
                 </TableContainer>
             </Grid>
+
+            {/* Delete Selected Button */}
+
         </Grid>
     );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { IManual } from "@/src/interfaces";
 import { SelectChangeEvent } from "@mui/material";
 
@@ -16,14 +16,14 @@ export const useManualTable = (
   const [searchQuery, setSearchQuery] = useState("");
   const [systemFilter, setSystemFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!apiUrl) {
       setData(initialData);
       return;
     }
 
-    const fetchData = async () => {
       setIsLoading(true);
       try {
         const response = await fetch(apiUrl);
@@ -95,10 +95,63 @@ export const useManualTable = (
       } finally {
         setIsLoading(false);
       }
-    };
+    }, [apiUrl, initialData]);
 
+  useEffect(() => {
     fetchData();
-  }, [apiUrl, initialData]);
+  }, [fetchData]);
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = paginatedData.map((n) => n.id as string);
+      setSelectedItems(newSelected);
+      return;
+    }
+    setSelectedItems([]);
+  };
+
+  const handleClick = (id: string) => {
+    const selectedIndex = selectedItems.indexOf(id);
+    let newSelected: string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedItems, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedItems.slice(1));
+    } else if (selectedIndex === selectedItems.length - 1) {
+      newSelected = newSelected.concat(selectedItems.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedItems.slice(0, selectedIndex),
+        selectedItems.slice(selectedIndex + 1),
+      );
+    }
+
+    setSelectedItems(newSelected);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedItems.length === 0) return;
+    if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูล ${selectedItems.length} รายการ?`)) {
+      try {
+        const url = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${url}/manual/bulk`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selectedItems.map(Number)),
+        });
+
+        if (response.ok) {
+          setSelectedItems([]);
+          fetchData(); // Refresh data
+        } else {
+          console.error("Failed to delete items");
+        }
+      } catch (error) {
+        console.error("Error deleting items:", error);
+      }
+    }
+  };
 
   // ดึงรายการ "ระบบ" แบบไม่ซ้ำจากข้อมูลที่มีอยู่ เพื่อนำไปแสดงใน Dropdown
   const systemOptions = useMemo(() => {
@@ -108,7 +161,7 @@ export const useManualTable = (
 
   // กรองข้อมูลตามเงื่อนไขทั้งหมด
   const filteredData = useMemo(() => {
-    return data.filter((item) => {
+    const filtered = data.filter((item) => {
       const query = searchQuery.trim().toLowerCase();
 
       const title = item.title?.toLowerCase() || "";
@@ -119,6 +172,12 @@ export const useManualTable = (
       const matchStatus = !statusFilter || item.status === statusFilter;
 
       return matchTitle && matchSystem && matchStatus;
+    });
+
+    return filtered.sort((a, b) => {
+      const orderA = a.order ?? 999999;
+      const orderB = b.order ?? 999999;
+      return orderA - orderB;
     });
   }, [data, searchQuery, systemFilter, statusFilter]);
 
@@ -212,6 +271,7 @@ export const useManualTable = (
     statusFilter,
     systemOptions,
     isLoading,
+    selectedItems,
     handlePageChange,
     handleSelectPage,
     handleSearchChange,
@@ -219,5 +279,8 @@ export const useManualTable = (
     handleStatusChange,
     handleResetFilters,
     handleOrderChange,
+    handleSelectAllClick,
+    handleClick,
+    handleDeleteSelected,
   };
 };
