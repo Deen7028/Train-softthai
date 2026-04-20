@@ -15,6 +15,7 @@ import { ManualFormProps } from './ManualFormProps';
 export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
     const { state, handlers } = useManualForm(initialData);
     const [systemOptions, setSystemOptions] = useState<string[]>([]);
+    const [isNewSystem, setIsNewSystem] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [userOptions, setUserOptions] = useState<{ id: number; name: string }[]>([]);
     useEffect(() => {
@@ -33,15 +34,15 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
         };
 
         const fetchUsers = async () => {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5214/api";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             try {
-                const res = await fetch(`${apiUrl}/user`); 
+                const res = await fetch(`${apiUrl}user`); 
                 const data = await res.json();
 
                 setUserOptions(
                     data.map((u: unknown) => ({
                         id: (u as { nUserId: number }).nUserId,
-                        name: `${(u as { sUserName: string }).sUserName} (${(u as { isActive: boolean }).isActive ? 'ใช้งาน' : 'ไม่ใช้งาน'})`
+                        name: `${(u as { sUserName: string }).sUserName} (${(u as { isActive: boolean }).isActive ? 'ไม่ใช้งาน' : 'ใช้งาน'})`
                     }))
                 );
             } catch (err) {
@@ -65,12 +66,50 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                     <Grid size={12}>
                         <FormControl fullWidth size="small">
                             <Typography variant="body2" sx={{ mb: 1 }}>ระบบ *</Typography>
-                            <Select displayEmpty value={state.system} onChange={(e) => handlers.setSystem(e.target.value as string)}>
-                                <MenuItem value="" disabled>เลือกระบบ</MenuItem>
-                                {systemOptions.map((sys, index) => (
-                                    <MenuItem key={index} value={sys}>{sys}</MenuItem>
-                                ))}
-                            </Select>
+                            {isNewSystem ? (
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <TextField 
+                                        size="small" 
+                                        fullWidth 
+                                        placeholder="ระบุชื่อระบบใหม่" 
+                                        value={state.system} 
+                                        onChange={(e) => handlers.setSystem(e.target.value)} 
+                                        autoFocus
+                                    />
+                                    <Button 
+                                        sx={{ ml: 1, minWidth: 'auto' }} 
+                                        color="error"
+                                        onClick={() => {
+                                            setIsNewSystem(false);
+                                            handlers.setSystem('');
+                                        }}
+                                    >
+                                        ยกเลิก
+                                    </Button>
+                                </Box>
+                            ) : (
+                                <Select 
+                                    displayEmpty 
+                                    value={state.system} 
+                                    onChange={(e) => {
+                                        if (e.target.value === 'ADD_NEW') {
+                                            setIsNewSystem(true);
+                                            handlers.setSystem('');
+                                        } else {
+                                            handlers.setSystem(e.target.value as string);
+                                        }
+                                    }}
+                                >
+                                    <MenuItem value="" disabled>เลือกระบบ</MenuItem>
+                                    {systemOptions.map((sys, index) => (
+                                        <MenuItem key={index} value={sys}>{sys}</MenuItem>
+                                    ))}
+                                    <Divider />
+                                    <MenuItem value="ADD_NEW" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+                                        + เพิ่มระบบใหม่
+                                    </MenuItem>
+                                </Select>
+                            )}
                         </FormControl>
                     </Grid>
 
