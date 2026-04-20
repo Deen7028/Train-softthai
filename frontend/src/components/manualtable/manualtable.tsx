@@ -81,8 +81,8 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                             sx={{ bgcolor: 'white' }}
                         >
                             <MenuItem value="">สถานะทั้งหมด</MenuItem>
-                            <MenuItem value={ManualStatus.ACTIVE}>{ManualStatus.ACTIVE}</MenuItem>
-                            <MenuItem value={ManualStatus.INACTIVE}>{ManualStatus.INACTIVE}</MenuItem>
+                            <MenuItem value={ManualStatus.ACTIVE}>ใช้งาน</MenuItem>
+                            <MenuItem value={ManualStatus.INACTIVE}>ไม่ใช้งาน</MenuItem>
                         </Select>
                     </Grid>
 
@@ -181,7 +181,11 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                         <TableCell sx={{ color: 'text.secondary' }}>{row.system}</TableCell>
                                         <TableCell align="center">
                                             <Typography sx={{
-                                                color: row.status === ManualStatus.ACTIVE ? 'green' : 'red',
+                                                color: 'white',
+                                                px: 2,
+                                                py: 0.5,
+                                                borderRadius: 50,
+                                                bgcolor: row.status === ManualStatus.ACTIVE ? 'green' : 'red',
                                                 fontWeight: 'medium'
                                             }}>
                                                 {row.status === ManualStatus.ACTIVE ? "ใช้งาน" : "ไม่ใช้งาน"}

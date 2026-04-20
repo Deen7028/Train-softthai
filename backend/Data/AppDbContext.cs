@@ -10,7 +10,7 @@ namespace backend.Data
             
         }
 
-        public DbSet<SystemManual> Tbmanuals { get; set; }
-        public DbSet<TmUser> TmUsers { get; set; }
+        public DbSet<Manuals> Tbmanuals { get; set; }
+        public DbSet<Users> TmUsers { get; set; }
     }
 }

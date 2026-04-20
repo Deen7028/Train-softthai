@@ -60,24 +60,33 @@ namespace backend.Services
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<object> CreateManualAsync(string title, string system, string status, int? createdBy)
+        public async Task<object> CreateManualAsync(string title, string system, string status, int? createdBy, int id)
         {
             int maxSeq = await _context.Tbmanuals.AnyAsync()
                 ? await _context.Tbmanuals.MaxAsync(m => m.SequenceNumber)
                 : 0;
 
-            var newManual = new SystemManual
+            var newManual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
+            if (newManual == null)
             {
-                SequenceNumber = maxSeq + 1,
-                ManualName = title ?? "",
-                SystemName = system ?? "",
-                IsActive = status == "ACTIVE",
-                CreatedBy = createdBy,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
+                newManual = new Manuals();
+                newManual.SequenceNumber = maxSeq + 1;
+                newManual.ManualName = title ?? "";
+                newManual.SystemName = system ?? "";
+                newManual.IsActive = status == "ACTIVE";
+                newManual.CreatedBy = createdBy;
+                newManual.CreatedAt = DateTime.Now;
+                newManual.UpdatedAt = DateTime.Now;
+                _context.Tbmanuals.Add(newManual);
+            }
+            else
+            {
+                newManual.ManualName = title ?? "";
+                newManual.SystemName = system ?? "";
+                newManual.IsActive = status == "ACTIVE";
+                newManual.UpdatedAt = DateTime.Now;
+            }
 
-            _context.Tbmanuals.Add(newManual);
             await _context.SaveChangesAsync();
 
             return new { id = newManual.Id };

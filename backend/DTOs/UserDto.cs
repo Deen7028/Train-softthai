@@ -4,5 +4,6 @@ namespace backend.DTOs
     {
         public int NUserId { get; set; }
         public string SUserName { get; set; } = string.Empty;
+        public bool IsActive { get; set; }
     }
 }

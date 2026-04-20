@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace backend.Models
 {
     [Table("Tbmanuals")]
-    public class SystemManual
+    public class Manuals 
     {
         [Key]
         [Column("nId")]

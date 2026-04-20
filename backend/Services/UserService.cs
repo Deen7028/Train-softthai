@@ -19,11 +19,11 @@ namespace backend.Services
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
             var users = await _context.TmUsers
-                .Where(u => u.IsActive)
                 .Select(u => new UserDto
                 {
                     NUserId = u.Id,
                     SUserName = u.UserName,
+                    IsActive = u.IsActive
                 })
                 .ToListAsync();
 

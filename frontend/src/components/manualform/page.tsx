@@ -41,7 +41,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                 setUserOptions(
                     data.map((u: unknown) => ({
                         id: (u as { nUserId: number }).nUserId,
-                        name: (u as { sUserName: string }).sUserName
+                        name: `${(u as { sUserName: string }).sUserName} (${(u as { isActive: boolean }).isActive ? 'ใช้งาน' : 'ไม่ใช้งาน'})`
                     }))
                 );
             } catch (err) {
@@ -142,7 +142,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                             <Switch checked={state.status} onChange={handlers.setStatus} color="success" />
                             <Typography variant="caption" sx={{ ml: 1 }}>
-                                {state.status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE}
+                                {state.status ? "ใช้งาน" : "ไม่ใช้งาน"}
                             </Typography>
                         </Box>
                     </Grid>

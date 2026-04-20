@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace backend.Models
 {
     [Table("TmUsers")]
-    public class TmUser
+    public class Users 
     {
         [Key]
         [Column("nUserId")]

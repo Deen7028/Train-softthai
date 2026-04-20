@@ -37,11 +37,11 @@ namespace backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status, [FromForm] int? createdBy)
+        public async Task<IActionResult> CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status, [FromForm] int? createdBy, [FromForm] int id = 0)
         {
             try
             {
-                var result = await _manualService.CreateManualAsync(title, system, status, createdBy);
+                var result = await _manualService.CreateManualAsync(title, system, status, createdBy, id);
                 return CreatedAtAction(nameof(GetManuals), result, new { success = true });
             }
             catch (Exception ex)
