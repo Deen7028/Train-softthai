@@ -48,7 +48,7 @@ export default function Navbar() {
 
                     <Box sx={{ display: { md: 'flex' }, gap: 2 }}>
                         <Link href="/manual" passHref>
-                            <Button sx={{ color: "white"}}>จัดการคู่มือ</Button>
+                            <Button sx={{ color: "white", fontFamily: "'Prompt', sans-serif", fontSize: 16, fontWeight: 400 }}>จัดการคู่มือ</Button>
                         </Link>
                     </Box>
                 </Toolbar>
