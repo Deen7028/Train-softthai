@@ -6,7 +6,6 @@ import {
     IconButton, Switch, FormControl, Paper, Divider, Grid
 } from '@mui/material';
 import { CloudUpload, Delete, ArrowBackIos, Save } from '@mui/icons-material';
-import { ManualStatus } from '@/src/enum';
 import { IManual } from '@/src/interfaces';
 import Link from 'next/link';
 import { useManualForm } from '@/src/app/manual/manage/useManualForm';
@@ -22,7 +21,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
         const fetchSystems = async () => {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5214/api";
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             try {
                 const res = await fetch(`${apiUrl}/manual`);
                 const data: IManual[] = await res.json();
@@ -36,13 +35,13 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
         const fetchUsers = async () => {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             try {
-                const res = await fetch(`${apiUrl}user`); 
+                const res = await fetch(`${apiUrl}/user`); 
                 const data = await res.json();
 
                 setUserOptions(
                     data.map((u: unknown) => ({
                         id: (u as { nUserId: number }).nUserId,
-                        name: `${(u as { sUserName: string }).sUserName} (${(u as { isActive: boolean }).isActive ? 'ไม่ใช้งาน' : 'ใช้งาน'})`
+                        name: `${(u as { sUserName: string }).sUserName}`
                     }))
                 );
             } catch (err) {
