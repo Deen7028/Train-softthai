@@ -60,7 +60,7 @@ namespace backend.Services
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<object> CreateManualAsync(string title, string system, string status, int? createdBy, int id)
+        public async Task<object> CreateManualAsync(string manualName, string systemName, string status, int? createdBy, int id)
         {
             int maxSeq = await _context.Tbmanuals.AnyAsync()
                 ? await _context.Tbmanuals.MaxAsync(m => m.SequenceNumber)
@@ -71,8 +71,8 @@ namespace backend.Services
             {
                 newManual = new Manuals();
                 newManual.SequenceNumber = maxSeq + 1;
-                newManual.ManualName = title ?? "";
-                newManual.SystemName = system ?? "";
+                newManual.ManualName = manualName ?? "";
+                newManual.SystemName = systemName ?? "";
                 newManual.IsActive = status == "ACTIVE";
                 newManual.CreatedBy = createdBy;
                 newManual.CreatedAt = DateTime.Now;
@@ -81,8 +81,8 @@ namespace backend.Services
             }
             else
             {
-                newManual.ManualName = title ?? "";
-                newManual.SystemName = system ?? "";
+                newManual.ManualName = manualName ?? "";
+                newManual.SystemName = systemName ?? "";
                 newManual.IsActive = status == "ACTIVE";
                 newManual.UpdatedAt = DateTime.Now;
             }
@@ -98,11 +98,11 @@ namespace backend.Services
 
             if (manual == null) return null;
 
-            if (!string.IsNullOrEmpty(request.Title))
-                manual.ManualName = request.Title;
+            if (!string.IsNullOrEmpty(request.ManualName))
+                manual.ManualName = request.ManualName;
 
-            if (!string.IsNullOrEmpty(request.System))
-                manual.SystemName = request.System;
+            if (!string.IsNullOrEmpty(request.SystemName))
+                manual.SystemName = request.SystemName;
 
             if (!string.IsNullOrEmpty(request.Status))
                 manual.IsActive = request.Status.ToUpper() == "ACTIVE";

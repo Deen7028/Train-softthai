@@ -7,8 +7,8 @@ namespace backend.DTOs
 {
     public class UpdateManual
     {
-        public string? Title { get; set; }
-        public string? System { get; set; }
+        public string? ManualName { get; set; }
+        public string? SystemName { get; set; }
         public string? Status { get; set; }
         public int? CreatedBy { get; set; }
     }
