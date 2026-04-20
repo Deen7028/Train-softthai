@@ -42,13 +42,13 @@ export const useManualTable = (
             console.warn("❌ ไม่มี id จาก API:", record);
           }
           const titleValue =
-            record.title ?? record.manual_name ?? record.manualName;
+            record.manualName ?? record.title ?? record.manual_name;
           const systemValue =
-            record.system ?? record.system_name ?? record.systemName;
+            record.systemName ?? record.system ?? record.system_name;
           const statusValue = record.status ?? record.is_active;
           const updatedAtValue =
-            record.updatedAt ?? record.updated_at ?? record.updated_at_at;
-          const orderValue = record.order ?? record.sequence_number;
+            record.updatedAt ?? record.updated_at;
+          const orderValue = record.sequenceNumber ?? record.order ?? record.sequence_number;
           const creatorNameValue =
             record.creatorName ?? record.creator_name ?? record.creatorname ??
             record.userName ?? record.user_name;
@@ -80,11 +80,11 @@ export const useManualTable = (
 
           return {
             id,
-            title,
-            system,
+            manualName: title,
+            systemName: system,
             status,
             updatedAt,
-            order,
+            sequenceNumber: order,
             creatorName,
           } as IManual;
         });
@@ -155,7 +155,7 @@ export const useManualTable = (
 
   // ดึงรายการ "ระบบ" แบบไม่ซ้ำจากข้อมูลที่มีอยู่ เพื่อนำไปแสดงใน Dropdown
   const systemOptions = useMemo(() => {
-    const systems = data.map((item) => item.system).filter(Boolean) as string[];
+    const systems = data.map((item) => item.systemName).filter(Boolean) as string[];
     return Array.from(new Set(systems));
   }, [data]);
 
@@ -164,19 +164,19 @@ export const useManualTable = (
     const filtered = data.filter((item) => {
       const query = searchQuery.trim().toLowerCase();
 
-      const title = item.title?.toLowerCase() || "";
+      const name = item.manualName?.toLowerCase() || "";
 
-      const matchTitle = !query || title.includes(query);
+      const matchTitle = !query || name.includes(query);
 
-      const matchSystem = !systemFilter || item.system === systemFilter;
+      const matchSystem = !systemFilter || item.systemName === systemFilter;
       const matchStatus = !statusFilter || item.status === statusFilter;
 
       return matchTitle && matchSystem && matchStatus;
     });
 
     return filtered.sort((a, b) => {
-      const orderA = a.order ?? 999999;
-      const orderB = b.order ?? 999999;
+      const orderA = a.sequenceNumber ?? 999999;
+      const orderB = b.sequenceNumber ?? 999999;
       return orderA - orderB;
     });
   }, [data, searchQuery, systemFilter, statusFilter]);
@@ -212,7 +212,7 @@ export const useManualTable = (
 
       updatedItems = updated.map((item, index) => ({
         ...item,
-        order: index + 1,
+        sequenceNumber: index + 1,
       }));
       return updatedItems;
     });
@@ -226,7 +226,7 @@ export const useManualTable = (
           body: JSON.stringify(
             updatedItems.map((item) => ({
               id: Number(item.id),
-              order: item.order,
+              order: item.sequenceNumber,
             })),
           ),
         });

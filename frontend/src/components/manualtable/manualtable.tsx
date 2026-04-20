@@ -164,7 +164,7 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                         <TableCell align="center">
                                             <FormControl size="small" sx={{ minWidth: 60 }}>
                                                 <Select
-                                                    value={row.order || (page - 1) * 8 + (index + 1)}
+                                                    value={row.sequenceNumber || (page - 1) * 8 + (index + 1)}
                                                     onChange={(e) => handleOrderChange(row.id, Number(e.target.value))}
                                                     sx={{ height: 35, fontSize: '0.875rem' }}
                                                 >
@@ -177,8 +177,8 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                                             </FormControl>
                                         </TableCell>
 
-                                        <TableCell sx={{ maxWidth: 300 }}>{row.title}</TableCell>
-                                        <TableCell sx={{ color: 'text.secondary' }}>{row.system}</TableCell>
+                                        <TableCell sx={{ maxWidth: 300 }}>{row.manualName}</TableCell>
+                                        <TableCell sx={{ color: 'text.secondary' }}>{row.systemName}</TableCell>
                                         <TableCell align="center">
                                             <Typography sx={{
                                                 color: 'white',
@@ -249,7 +249,6 @@ export default function ManualTablePage({ columns, data, apiUrl }: IManualTableP
                 </TableContainer>
             </Grid>
 
-            {/* Delete Selected Button */}
 
         </Grid>
     );

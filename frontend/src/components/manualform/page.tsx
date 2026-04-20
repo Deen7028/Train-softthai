@@ -25,7 +25,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
             try {
                 const res = await fetch(`${apiUrl}/manual`);
                 const data: IManual[] = await res.json();
-                const uniqueSystems = Array.from(new Set(data.map(item => item.system).filter(Boolean)));
+                const uniqueSystems = Array.from(new Set(data.map(item => item.systemName).filter(Boolean)));
                 setSystemOptions(uniqueSystems as string[]);
             } catch (err) {
                 console.error("Fetch systems error", err);
@@ -35,7 +35,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
         const fetchUsers = async () => {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             try {
-                const res = await fetch(`${apiUrl}/user`); 
+                const res = await fetch(`${apiUrl}/user`);
                 const data = await res.json();
 
                 setUserOptions(
@@ -67,16 +67,16 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                             <Typography variant="body2" sx={{ mb: 1 }}>ระบบ *</Typography>
                             {isNewSystem ? (
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <TextField 
-                                        size="small" 
-                                        fullWidth 
-                                        placeholder="ระบุชื่อระบบใหม่" 
-                                        value={state.system} 
-                                        onChange={(e) => handlers.setSystem(e.target.value)} 
+                                    <TextField
+                                        size="small"
+                                        fullWidth
+                                        placeholder="ระบุชื่อระบบใหม่"
+                                        value={state.system}
+                                        onChange={(e) => handlers.setSystem(e.target.value)}
                                         autoFocus
                                     />
-                                    <Button 
-                                        sx={{ ml: 1, minWidth: 'auto' }} 
+                                    <Button
+                                        sx={{ ml: 1, minWidth: 'auto' }}
                                         color="error"
                                         onClick={() => {
                                             setIsNewSystem(false);
@@ -87,9 +87,9 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                                     </Button>
                                 </Box>
                             ) : (
-                                <Select 
-                                    displayEmpty 
-                                    value={state.system} 
+                                <Select
+                                    displayEmpty
+                                    value={state.system}
                                     onChange={(e) => {
                                         if (e.target.value === 'ADD_NEW') {
                                             setIsNewSystem(true);
