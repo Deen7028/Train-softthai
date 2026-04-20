@@ -28,9 +28,9 @@ namespace backend.Services
                         select new ManualDto
                         {
                             Id = manual.Id,
-                            Order = manual.SequenceNumber,
-                            Title = manual.ManualName,
-                            System = manual.SystemName,
+                            SequenceNumber = manual.SequenceNumber,
+                            ManualName = manual.ManualName,
+                            SystemName = manual.SystemName,
                             Status = manual.IsActive ? "ACTIVE" : "INACTIVE",
                             CreatedBy = manual.CreatedBy,
                             CreatorName = user != null ? user.UserName : "ไม่ระบุ",
@@ -48,9 +48,9 @@ namespace backend.Services
                         select new ManualDto
                         {
                             Id = manual.Id,
-                            Order = manual.SequenceNumber,
-                            Title = manual.ManualName,
-                            System = manual.SystemName,
+                            SequenceNumber = manual.SequenceNumber,
+                            ManualName = manual.ManualName,
+                            SystemName = manual.SystemName,
                             Status = manual.IsActive ? "ACTIVE" : "INACTIVE",
                             CreatedBy = manual.CreatedBy,
                             CreatorName = user != null ? user.UserName : "ไม่ระบุ",
@@ -117,8 +117,8 @@ namespace backend.Services
             return new ManualDto
             {
                 Id = manual.Id,
-                Title = manual.ManualName,
-                System = manual.SystemName,
+                ManualName = manual.ManualName,
+                SystemName = manual.SystemName,
                 Status = manual.IsActive ? "ACTIVE" : "INACTIVE",
                 UpdatedAt = manual.UpdatedAt
             };
