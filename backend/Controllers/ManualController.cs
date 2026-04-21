@@ -22,14 +22,14 @@ namespace backend.Controllers
         [HttpGet]
         public IActionResult GetManuals()
         {
-            var result =  _manualService.GetManuals();
+            var result = _manualService.GetManuals();
             return Ok(result);
         }
 
         [HttpGet("{id}")]
         public IActionResult GetManualById(int id)
         {
-            var result =  _manualService.GetManualById(id);
+            var result = _manualService.GetManualById(id);
 
             if (result == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
 
@@ -41,7 +41,7 @@ namespace backend.Controllers
         {
             try
             {
-                var result =  _manualService.CreateManual(title, system, status, createdBy, id);
+                var result = _manualService.CreateManual(title, system, status, createdBy, id);
                 return CreatedAtAction(nameof(GetManuals), result, new { success = true });
             }
             catch (Exception ex)

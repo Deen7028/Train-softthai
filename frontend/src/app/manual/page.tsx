@@ -1,8 +1,8 @@
 'use client';
 
 import { ManualTablePage } from "@/src/components";
+import { useManualContext } from "./ManualContext";
 
-const emptyData: unknown[] = [];
 const columns = [
   { id: 'title', label: 'ชื่อคู่มือ' },
   { id: 'system', label: 'ระบบ' },
@@ -11,15 +11,14 @@ const columns = [
   { id: 'creatorName', label: 'ผู้สร้าง' },
 ];
 
-const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5124/api';
-
 export default function ManualPage() {
+  const { manuals } = useManualContext();
+
   return (
     <>
       <ManualTablePage
         columns={columns}
-        data={emptyData}
-        apiUrl={`${apiUrl}/manual`}
+        data={manuals}
       />
     </>
   );

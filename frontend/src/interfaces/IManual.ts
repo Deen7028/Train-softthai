@@ -6,7 +6,6 @@ export interface IManual {
   id?: string;
   manualName: string;
   systemName?: string;
-  description?: string;
   status: ManualStatus;
   sequenceNumber?: number;
   createdAt?: Date | string;

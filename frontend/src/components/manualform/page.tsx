@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -6,32 +7,32 @@ import {
     IconButton, Switch, FormControl, Paper, Divider, Grid
 } from '@mui/material';
 import { CloudUpload, Delete, ArrowBackIos, Save } from '@mui/icons-material';
-import { IManual } from '@/src/interfaces';
 import Link from 'next/link';
+import { useManualContext } from '@/src/app/manual/ManualContext';
 import { useManualForm } from '@/src/app/manual/manage/useManualForm';
 import { ManualFormProps } from './ManualFormProps';
 
-export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
-    const { state, handlers } = useManualForm(initialData);
-    const [systemOptions, setSystemOptions] = useState<string[]>([]);
-    const [isNewSystem, setIsNewSystem] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const [userOptions, setUserOptions] = useState<{ id: number; name: string }[]>([]);
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setMounted(true);
-        const fetchSystems = async () => {
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-            try {
-                const res = await fetch(`${apiUrl}/manual`);
-                const data: IManual[] = await res.json();
-                const uniqueSystems = Array.from(new Set(data.map(item => item.systemName).filter(Boolean)));
-                setSystemOptions(uniqueSystems as string[]);
-            } catch (err) {
-                console.error("Fetch systems error", err);
-            }
-        };
+import { IManual, IUser } from '@/src/interfaces';
 
+export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
+    const [mounted, setMounted] = useState(false);
+    const [systemOptions, setSystemOptions] = useState<string[]>(
+        initialData?.systemName ? [initialData.systemName] : []
+    );
+    const [isNewSystem, setIsNewSystem] = useState(false);
+    const [userOptions, setUserOptions] = useState<{ id: number; name: string }[]>([]);
+    const { state, handlers } = useManualForm(initialData);
+    const { manuals } = useManualContext();
+
+    useEffect(() => {
+        if (manuals.length > 0) {
+            const uniqueSystems = Array.from(new Set(manuals.map(item => item.systemName).filter(Boolean)));
+            setSystemOptions(uniqueSystems as string[]);
+        }
+    }, [manuals]);
+
+    useEffect(() => {
+        setMounted(true);
         const fetchUsers = async () => {
             const apiUrl = process.env.NEXT_PUBLIC_API_URL;
             try {
@@ -39,16 +40,15 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                 const data = await res.json();
 
                 setUserOptions(
-                    data.map((u: unknown) => ({
-                        id: (u as { nUserId: number }).nUserId,
-                        name: `${(u as { sUserName: string }).sUserName}`
+                    (data as IUser[]).map((u) => ({
+                        id: u.nUserId,
+                        name: u.sUserName
                     }))
                 );
             } catch (err) {
                 console.error("Fetch users error", err);
             }
         };
-        fetchSystems();
         fetchUsers();
     }, []);
 
@@ -125,8 +125,7 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                         <Typography variant="body2" sx={{ mb: 1 }}>คำอธิบาย</Typography>
                         <TextField
                             fullWidth multiline rows={4}
-                            value={state.description}
-                            onChange={handlers.setDescription}
+
                         />
                     </Grid>
 

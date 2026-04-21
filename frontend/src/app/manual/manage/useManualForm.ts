@@ -8,9 +8,6 @@ export const useManualForm = (initialData?: IManual) => {
   const router = useRouter();
   const [system, setSystem] = useState(initialData?.systemName || "");
   const [title, setTitle] = useState(initialData?.manualName || "");
-  const [description, setDescription] = useState(
-    initialData?.description || "",
-  );
   const [status, setStatus] = useState(
     initialData?.status === ManualStatus.ACTIVE,
   );
@@ -18,7 +15,7 @@ export const useManualForm = (initialData?: IManual) => {
   const [createdBy, setCreatedBy] = useState<string>(
     initialData?.createdBy?.toString() || "",
   );
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5214/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const handleSubmit = async () => {
     try {
@@ -73,13 +70,11 @@ export const useManualForm = (initialData?: IManual) => {
   };
 
   return {
-    state: { system, title, description, status, selectedFile, createdBy },
+    state: { system, title, status, selectedFile, createdBy },
     handlers: {
       setSystem: (value: string) => setSystem(value),
       setTitle: (e: React.ChangeEvent<HTMLInputElement>) =>
         setTitle(e.target.value),
-      setDescription: (e: React.ChangeEvent<HTMLTextAreaElement>) =>
-        setDescription(e.target.value),
       setStatus: (e: React.ChangeEvent<HTMLInputElement>) =>
         setStatus(e.target.checked),
       handleFileChange,
