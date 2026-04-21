@@ -3,9 +3,9 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Box, Paper, Typography, TextField, Grid,
-  Button, Checkbox
+  Button, Checkbox, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
-import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SaveIcon from '@mui/icons-material/Save';
 import dayjs from 'dayjs';
@@ -23,7 +23,12 @@ function FormContent() {
     dEndDate: dayjs(),
     isShowAlways: false,
     nStatusId: 1,
+    nLocationId: '',
+    nTypePostId: '',
   });
+
+  const [locations, setLocations] = useState<any[]>([]);
+  const [types, setTypes] = useState<any[]>([]);
 
   // 2. ดึงข้อมูลกรณี "แก้ไข"
   useEffect(() => {
@@ -44,6 +49,8 @@ function FormContent() {
             dEndDate: data.dEndDate ? dayjs(data.dEndDate) : dayjs(),
             isShowAlways: Boolean(data.isShowAlways),
             nStatusId: data.nStatusId,
+            nLocationId: data.nLocationId || '',
+            nTypePostId: data.nTypePostId || '',
           });
         } catch (error) {
           console.error("Fetch Error:", error);
@@ -53,6 +60,23 @@ function FormContent() {
       fetchData();
     }
   }, [editId]);
+
+  useEffect(() => {
+    const fetchMasterData = async () => {
+      try {
+        const [locRes, typeRes] = await Promise.all([
+          fetch('http://localhost:5071/api/user/GetLocation'),
+          fetch('http://localhost:5071/api/user/GetTypePost')
+        ]);
+
+        if (locRes.ok) setLocations(await locRes.json());
+        if (typeRes.ok) setTypes(await typeRes.json());
+      } catch (error) {
+        console.error("Master Data Fetch Error:", error);
+      }
+    };
+    fetchMasterData();
+  }, []);
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -73,7 +97,9 @@ function FormContent() {
       dStartDate: formData.dStartDate ? formData.dStartDate.format('YYYY-MM-DD') : null,
       dEndDate: formData.dEndDate ? formData.dEndDate.format('YYYY-MM-DD') : null,
       isShowAlways: formData.isShowAlways,
-      nStatusId: formData.nStatusId
+      nStatusId: formData.nStatusId,
+      nLocationId: formData.nLocationId ? parseInt(formData.nLocationId.toString()) : 0,
+      nTypePostId: formData.nTypePostId ? parseInt(formData.nTypePostId.toString()) : 0,
     };
 
     try {
@@ -144,14 +170,50 @@ function FormContent() {
             </Grid>
           </Grid>
 
-          <Grid container sx={{ pt: 3 }}>
-            <Grid size={3}>
+          <Grid container spacing={3} sx={{ pt: 3 }}>
+            <Grid size={4}>
               <TextField
                 fullWidth
                 label="ชื่อประกาศ *"
                 value={formData.sTitle}
                 onChange={(e) => handleChange('sTitle', e.target.value)}
               />
+            </Grid>
+
+            <Grid size={4}>
+              <FormControl fullWidth>
+                <InputLabel>สถานที่</InputLabel>
+                <Select
+                  value={formData.nLocationId}
+                  label="สถานที่"
+                  onChange={(e) => handleChange('nLocationId', e.target.value)}
+                >
+                  <MenuItem value=""><em>ไม่มี</em></MenuItem>
+                  {locations.map((loc) => (
+                    <MenuItem key={loc.nLocationId} value={loc.nLocationId}>
+                      {loc.sLocationName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid>
+
+            <Grid size={4}>
+              <FormControl fullWidth>
+                <InputLabel>ประเภทประกาศ</InputLabel>
+                <Select
+                  value={formData.nTypePostId}
+                  label="ประเภทประกาศ"
+                  onChange={(e) => handleChange('nTypePostId', e.target.value)}
+                >
+                  <MenuItem value=""><em>ไม่มี</em></MenuItem>
+                  {types.map((type) => (
+                    <MenuItem key={type.nTypePostId} value={type.nTypePostId}>
+                      {type.sTypeName}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
 
