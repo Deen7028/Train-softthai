@@ -1,8 +1,8 @@
 // Controllers/ManualController.cs
-using backend.Data;
-using backend.Models;
+using backend.DTOs;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -12,130 +12,91 @@ namespace backend.Controllers
     [ApiController]
     public class ManualController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IManualService _manualService;
 
-        public ManualController(AppDbContext context)
+        public ManualController(IManualService manualService)
         {
-            _context = context;
+            _manualService = manualService;
         }
 
-        // 1. GET: api/manual (ดึงข้อมูลทั้งหมดไปโชว์ในตาราง)
         [HttpGet]
-        public async Task<IActionResult> GetManuals()
+        public IActionResult GetManuals()
         {
-            var manuals = await _context.SystemManuals
-                .OrderBy(m => m.SequenceNumber)
-                .ToListAsync();
+            var result = _manualService.GetManuals();
+            return Ok(result);
+        }
 
-            // แปลงข้อมูลให้ตรงกับ Interface ของฝั่ง Next.js
-            var result = manuals.Select(row => new
-            {
-                id = row.Id.ToString(),
-                order = row.SequenceNumber,
-                title = row.ManualName,
-                system = row.SystemName,
-                status = row.IsActive ? "ACTIVE" : "INACTIVE",
-                updatedAt = row.UpdatedAt
-            });
+        [HttpGet("{id}")]
+        public IActionResult GetManualById(int id)
+        {
+            var result = _manualService.GetManualById(id);
+
+            if (result == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
 
             return Ok(result);
         }
 
-        // 2. POST: api/manual (เพิ่มคู่มือใหม่)
         [HttpPost]
-        public async Task<IActionResult> CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status)
+        public IActionResult CreateManual([FromForm] string title, [FromForm] string system, [FromForm] string status, [FromForm] int? createdBy, [FromForm] int id = 0)
         {
             try
             {
-                // หาเลขลำดับล่าสุด
-                int maxSeq = await _context.SystemManuals.AnyAsync()
-                    ? await _context.SystemManuals.MaxAsync(m => m.SequenceNumber)
-                    : 0;
-
-                var newManual = new SystemManual
-                {
-                    SequenceNumber = maxSeq + 1,
-                    ManualName = title ?? "",
-                    SystemName = system ?? "",
-                    IsActive = status == "ACTIVE",
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now
-                };
-
-                _context.SystemManuals.Add(newManual);
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetManuals), new { id = newManual.Id }, new { success = true });
+                var result = _manualService.CreateManual(title, system, status, createdBy, id);
+                return CreatedAtAction(nameof(GetManuals), result, new { success = true });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = ex.Message });
             }
-        }
-
-        // 3. PUT: api/manual/{id} (แก้ไขข้อมูล)
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateManual(int id, [FromForm] string title, [FromForm] string system, [FromForm] string status)
-        {
-            var manual = await _context.SystemManuals.FirstOrDefaultAsync(m => m.Id == id);
-            if (manual == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
-
-            manual.ManualName = title ?? manual.ManualName;
-            manual.SystemName = system ?? manual.SystemName;
-            manual.IsActive = status == "ACTIVE";
-            manual.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new { success = true });
         }
 
         // 4. DELETE: api/manual/{id} (ลบข้อมูล)
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteManual(int id)
-        {
-            var manual = await _context.SystemManuals.FirstOrDefaultAsync(m => m.Id == id);
-            if (manual == null) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
-
-            _context.SystemManuals.Remove(manual);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { success = true });
-        }
-
-        // -----------------------------------------------------------
-        // 5. PUT: api/manual/reorder (รับข้อมูลเป็น List เพื่อสลับลำดับ)
-        // -----------------------------------------------------------
-        [HttpPut("reorder")]
-        public async Task<IActionResult> ReorderManuals([FromBody] List<ReorderRequest> items)
+        public IActionResult DeleteManual(int id)
         {
             try
             {
-                foreach (var item in items)
-                {
-                    // ค้นหาคู่มือตาม ID
-                    var manual = await _context.SystemManuals.FirstOrDefaultAsync(m => m.Id == item.Id);
-                    if (manual != null)
-                    {
-                        // อัปเดตเลขลำดับใหม่ (SequenceNumber)
-                        manual.SequenceNumber = item.Order;
-                        manual.UpdatedAt = DateTime.Now;
-                    }
-                }
-
-                // บันทึกการเปลี่ยนแปลงทั้งหมดรวดเดียว
-                await _context.SaveChangesAsync();
-
+                var success = _manualService.DeleteManual(id);
+                if (!success) return NotFound(new { error = "ไม่พบข้อมูลคู่มือ" });
                 return Ok(new { success = true });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                return StatusCode(500, new { error = ex.Message, detail = ex.InnerException?.Message });
+            }
+        }
+
+        // 5. DELETE: api/manual/bulk (ลบข้อมูลหลายรายการ)
+        [HttpDelete("bulk")]
+        public IActionResult DeleteManuals([FromBody] List<int> ids)
+        {
+            try
+            {
+                var success = _manualService.DeleteManuals(ids);
+                if (!success) return NotFound(new { error = "ไม่พบข้อมูลที่ต้องการลบ" });
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message, detail = ex.InnerException?.Message });
+            }
+        }
+
+        [HttpPut("reorder")]
+        public IActionResult ReorderManuals([FromBody] List<ReorderRequest> items)
+        {
+            try
+            {
+                _manualService.ReorderManuals(items);
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = "เกิดข้อผิดพลาดในการดึงข้อมูล: " + ex.Message });
             }
         }
     }
 
-    // สร้าง Class เล็กๆ ไว้รับข้อมูล List จาก Next.js (Id และ Order)
     public class ReorderRequest
     {
         public int Id { get; set; }

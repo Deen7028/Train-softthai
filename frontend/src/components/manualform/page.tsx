@@ -1,46 +1,114 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box, TextField, Typography, Select, MenuItem, Button,
     IconButton, Switch, FormControl, Paper, Divider, Grid
 } from '@mui/material';
-import { CloudUpload, Delete, Download, ArrowBackIos, Save } from '@mui/icons-material';
-import { ManualStatus } from '@/src/enum';
-import { IManual } from '@/src/interfaces';
+import { CloudUpload, Delete, ArrowBackIos, Save } from '@mui/icons-material';
 import Link from 'next/link';
+import { useManualContext } from '@/src/app/manual/ManualContext';
 import { useManualForm } from '@/src/app/manual/manage/useManualForm';
-import { MOCK_MANUALS } from '@/src/app/manual/mock';
+import { ManualFormProps } from './ManualFormProps';
 
-interface ManualFormProps {
-    initialData?: IManual;
-}
+import { IManual, IUser } from '@/src/interfaces';
 
 export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
+    const [mounted, setMounted] = useState(false);
+    const [systemOptions, setSystemOptions] = useState<string[]>(
+        initialData?.systemName ? [initialData.systemName] : []
+    );
+    const [isNewSystem, setIsNewSystem] = useState(false);
+    const [userOptions, setUserOptions] = useState<{ id: number; name: string }[]>([]);
     const { state, handlers } = useManualForm(initialData);
-    const systemOptions = useMemo(() => {
-        const systems = MOCK_MANUALS.map((item) => item.system).filter(Boolean) as string[];
-        return Array.from(new Set(systems));
+    const { manuals } = useManualContext();
+
+    useEffect(() => {
+        if (manuals.length > 0) {
+            const uniqueSystems = Array.from(new Set(manuals.map(item => item.systemName).filter(Boolean)));
+            setSystemOptions(uniqueSystems as string[]);
+        }
+    }, [manuals]);
+
+    useEffect(() => {
+        setMounted(true);
+        const fetchUsers = async () => {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+            try {
+                const res = await fetch(`${apiUrl}/user`);
+                const data = await res.json();
+
+                setUserOptions(
+                    (data as IUser[]).map((u) => ({
+                        id: u.nUserId,
+                        name: u.sUserName
+                    }))
+                );
+            } catch (err) {
+                console.error("Fetch users error", err);
+            }
+        };
+        fetchUsers();
     }, []);
+
+    if (!mounted) return null;
+
     return (
         <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: '#f5f5f5', minHeight: '100vh' }}>
             <Paper sx={{ p: { xs: 2, md: 4 }, borderRadius: 4, boxShadow: 'none' }}>
                 <Typography variant="h6" sx={{ mb: 3, fontWeight: 'bold' }}>
-                    {initialData ? 'แก้ไขคู่มือ' : 'เพิ่มคู่มือ'}
+                    {initialData?.id ? 'แก้ไขคู่มือ' : 'เพิ่มคู่มือ'}
                 </Typography>
 
                 <Grid container spacing={3}>
                     <Grid size={12}>
                         <FormControl fullWidth size="small">
                             <Typography variant="body2" sx={{ mb: 1 }}>ระบบ *</Typography>
-                            <Select displayEmpty value={state.system} onChange={handlers.setSystem}>
-                                <MenuItem value="" disabled>เลือกระบบ</MenuItem>
-                                {systemOptions.map((sys, index) => (
-                                    <MenuItem key={index} value={sys}>
-                                        {sys}
+                            {isNewSystem ? (
+                                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <TextField
+                                        size="small"
+                                        fullWidth
+                                        placeholder="ระบุชื่อระบบใหม่"
+                                        value={state.system}
+                                        onChange={(e) => handlers.setSystem(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <Button
+                                        sx={{ ml: 1, minWidth: 'auto' }}
+                                        color="error"
+                                        onClick={() => {
+                                            setIsNewSystem(false);
+                                            handlers.setSystem('');
+                                        }}
+                                    >
+                                        ยกเลิก
+                                    </Button>
+                                </Box>
+                            ) : (
+                                <Select
+                                    displayEmpty
+                                    value={state.system}
+                                    onChange={(e) => {
+                                        if (e.target.value === 'ADD_NEW') {
+                                            setIsNewSystem(true);
+                                            handlers.setSystem('');
+                                        } else {
+                                            handlers.setSystem(e.target.value as string);
+                                        }
+                                    }}
+                                >
+                                    <MenuItem value="" disabled>เลือกระบบ</MenuItem>
+                                    {systemOptions.map((sys, index) => (
+                                        <MenuItem key={index} value={sys}>{sys}</MenuItem>
+                                    ))}
+                                    <Divider />
+                                    <MenuItem value="ADD_NEW" sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+                                        + เพิ่มระบบใหม่
                                     </MenuItem>
-                                ))}
-                            </Select>
+                                </Select>
+                            )}
                         </FormControl>
                     </Grid>
 
@@ -57,9 +125,28 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
                         <Typography variant="body2" sx={{ mb: 1 }}>คำอธิบาย</Typography>
                         <TextField
                             fullWidth multiline rows={4}
-                            value={state.description}
-                            onChange={handlers.setDescription}
+
                         />
+                    </Grid>
+
+                    <Grid size={12}>
+                        <FormControl fullWidth size="small">
+                            <Typography variant="body2" sx={{ mb: 1 }}>
+                                ผู้สร้าง *
+                            </Typography>
+                            <Select
+                                value={state.createdBy}
+                                onChange={(e) => handlers.setCreatedBy(e.target.value as string)}
+                                displayEmpty
+                            >
+                                <MenuItem value="" disabled>เลือกผู้ใช้</MenuItem>
+                                {userOptions.map((user) => (
+                                    <MenuItem key={user.id} value={user.id.toString()}>
+                                        {user.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
                     </Grid>
 
                     <Grid size={12}><Divider /></Grid>
@@ -78,11 +165,10 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
 
                     {state.selectedFile && (
                         <Grid size={12}>
-                            <Grid container justifyContent="space-between" sx={{ p: 1, border: '1px solid #eee' }}>
+                            <Grid container justifyContent="space-between" alignItems="center" sx={{ p: 1, border: '1px solid #eee' }}>
                                 <Typography>{state.selectedFile.name}</Typography>
                                 <Box>
                                     <IconButton onClick={handlers.handleDeleteFile} color="error"><Delete /></IconButton>
-                                    <IconButton onClick={handlers.handleDownload} sx={{ color: '#4a148c' }}><Download /></IconButton>
                                 </Box>
                             </Grid>
                         </Grid>
@@ -90,23 +176,25 @@ export const ManualForm: React.FC<ManualFormProps> = ({ initialData }) => {
 
                     <Grid size={12}>
                         <Typography variant="body2">สถานะ *</Typography>
-                        <Switch checked={state.status} onChange={handlers.setStatus} color="success" />
-                        <Typography variant="caption">
-                            {state.status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <Switch checked={state.status} onChange={handlers.setStatus} color="success" />
+                            <Typography variant="caption" sx={{ ml: 1 }}>
+                                {state.status ? "ใช้งาน" : "ไม่ใช้งาน"}
+                            </Typography>
+                        </Box>
                     </Grid>
                 </Grid>
             </Paper>
 
             <Grid container spacing={2} justifyContent="space-between" sx={{ mt: 4 }}>
-                <Grid size={{ xs: 6, sm: 'auto' }}>
+                <Grid size="auto">
                     <Link href="/manual" style={{ textDecoration: 'none' }}>
                         <Button variant="contained" startIcon={<ArrowBackIos />} sx={{ bgcolor: '#757575' }}>
                             ย้อนกลับ
                         </Button>
                     </Link>
                 </Grid>
-                <Grid size={{ xs: 6, sm: 'auto' }}>
+                <Grid size="auto">
                     <Button variant="contained" startIcon={<Save />} onClick={handlers.handleSubmit} sx={{ bgcolor: '#4a148c' }}>
                         บันทึก
                     </Button>

@@ -1,107 +1,86 @@
-"use client";
-
-import { useState, useEffect, ChangeEvent } from "react";
+// src/app/manual/manage/useManualForm.ts
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { SelectChangeEvent } from "@mui/material";
 import { IManual } from "@/src/interfaces";
 import { ManualStatus } from "@/src/enum";
-import { useManualContext } from "../ManualContext";
 
 export const useManualForm = (initialData?: IManual) => {
   const router = useRouter();
-  const { manuals, addManual, updateManual } = useManualContext();
-  const [id, setId] = useState<string>(initialData?.id || "");
-  const [system, setSystem] = useState<string>("");
-  const [title, setTitle] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [status, setStatus] = useState<boolean>(true);
+  const [system, setSystem] = useState(initialData?.systemName || "");
+  const [title, setTitle] = useState(initialData?.manualName || "");
+  const [status, setStatus] = useState(
+    initialData?.status === ManualStatus.ACTIVE,
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [createdBy, setCreatedBy] = useState<string>(
+    initialData?.createdBy?.toString() || "",
+  );
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  useEffect(() => {
-    if (initialData) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSystem(initialData.system || "");
-      setTitle(initialData.title || "");
-      setDescription(initialData.description || "");
-      setStatus(initialData.status === ManualStatus.ACTIVE);
-    } else {
-      const nextId = manuals ? manuals.length + 1 : 1;
-      setId(String(nextId));
-    }
-  }, [initialData]);
-
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) setSelectedFile(file);
-  };
-
-  const handleDownload = () => {
-    if (selectedFile) {
-      const url = URL.createObjectURL(selectedFile);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = selectedFile.name;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    }
-  };
-  
   const handleSubmit = async () => {
-    if (!title || !system) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
-
     try {
+      const isEdit = !!initialData?.id;
+      const url = `${apiUrl}/manual`;
+
       const formData = new FormData();
-      if (initialData?.id) formData.append("id", initialData.id);
       formData.append("title", title);
       formData.append("system", system);
-      formData.append("description", description);
-      formData.append("status", status ? "ACTIVE" : "INACTIVE");
-      if (selectedFile) formData.append("file", selectedFile);
+      formData.append("status", status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE);
 
-      const apiUrl = initialData?.id
-        ? `${process.env.NEXT_PUBLIC_API_URL}/manual/${initialData.id}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/manual`;
+      if (createdBy) {
+        formData.append("createdBy", createdBy);
+      }
 
-      const response = await fetch(apiUrl, {
-        method: initialData?.id ? "PUT" : "POST",
+      // ส่ง id ไปด้วย ถ้าเป็นการแก้ไข (backend จะ upsert ตาม id)
+      if (isEdit && initialData?.id) {
+        formData.append("id", initialData.id.toString());
+      }
+
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
         body: formData,
       });
 
-      if (!response.ok) {
-        // เพิ่มการอ่าน error จาก API เผื่อไว้ดูใน Console ว่า Backend แตกเรื่องอะไร
-        const errorData = await response.json().catch(() => null);
-        console.error("API Error Response:", errorData);
-        throw new Error("บันทึกลง Database ล้มเหลว");
+      if (response.ok) {
+        alert("บันทึกข้อมูลสำเร็จ");
+        router.push("/manual");
+        router.refresh();
+      } else {
+        throw new Error("Failed to save data");
       }
-
-      alert("บันทึกข้อมูลสำเร็จ!");
-      router.push("/manual");
-      router.refresh();
     } catch (error) {
       console.error("Submit Error:", error);
-      alert("เกิดข้อผิดพลาดในการเชื่อมต่อ Database");
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleDeleteFile = () => {
+    setSelectedFile(null);
+  };
+
   return {
-    state: { system, title, description, status, selectedFile },
-    manuals,
+    state: { system, title, status, selectedFile, createdBy },
     handlers: {
-      setSystem: (e: SelectChangeEvent) => setSystem(e.target.value),
-      setTitle: (e: ChangeEvent<HTMLInputElement>) => setTitle(e.target.value),
-      setDescription: (e: ChangeEvent<HTMLInputElement>) =>
-        setDescription(e.target.value),
-      setStatus: (e: ChangeEvent<HTMLInputElement>) =>
+      setSystem: (value: string) => setSystem(value),
+      setTitle: (e: React.ChangeEvent<HTMLInputElement>) =>
+        setTitle(e.target.value),
+      setStatus: (e: React.ChangeEvent<HTMLInputElement>) =>
         setStatus(e.target.checked),
       handleFileChange,
-      handleDeleteFile: () => setSelectedFile(null),
-      handleDownload,
+      handleDeleteFile,
       handleSubmit,
+      setCreatedBy: (value: string) => setCreatedBy(value),
     },
   };
 };

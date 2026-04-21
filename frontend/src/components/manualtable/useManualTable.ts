@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { IManual } from "@/src/interfaces";
 import { SelectChangeEvent } from "@mui/material";
 
@@ -16,32 +16,42 @@ export const useManualTable = (
   const [searchQuery, setSearchQuery] = useState("");
   const [systemFilter, setSystemFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!apiUrl) {
       setData(initialData);
       return;
     }
 
-    const fetchData = async () => {
       setIsLoading(true);
       try {
         const response = await fetch(apiUrl);
-        if (!response.ok) throw new Error("Failed to fetch API");
-
+        if (!response.ok) {
+          console.error(
+            `🚨 API Error! URL: ${apiUrl} | Status: ${response.status}`,
+          );
+          throw new Error(`Failed to fetch API (Status: ${response.status})`);
+        }
         const result = await response.json();
 
         const mappedData: IManual[] = (result as unknown[]).map((item) => {
           const record = item as Record<string, unknown>;
-          const idValue = record.id ?? record.sequence_number;
+          const idValue = record.id;
+          if (idValue === undefined || idValue === null) {
+            console.warn("❌ ไม่มี id จาก API:", record);
+          }
           const titleValue =
-            record.title ?? record.manual_name ?? record.manualName;
+            record.manualName ?? record.title ?? record.manual_name;
           const systemValue =
-            record.system ?? record.system_name ?? record.systemName;
+            record.systemName ?? record.system ?? record.system_name;
           const statusValue = record.status ?? record.is_active;
           const updatedAtValue =
-            record.updatedAt ?? record.updated_at ?? record.updated_at_at;
-          const orderValue = record.order ?? record.sequence_number;
+            record.updatedAt ?? record.updated_at;
+          const orderValue = record.sequenceNumber ?? record.order ?? record.sequence_number;
+          const creatorNameValue =
+            record.creatorName ?? record.creator_name ?? record.creatorname ??
+            record.userName ?? record.user_name;
 
           const id =
             typeof idValue === "number"
@@ -65,14 +75,17 @@ export const useManualTable = (
               ? new Date(updatedAtValue)
               : undefined;
           const order = orderValue != null ? Number(orderValue) : undefined;
+          const creatorName =
+            typeof creatorNameValue === "string" ? creatorNameValue : "";
 
           return {
             id,
-            title,
-            system,
+            manualName: title,
+            systemName: system,
             status,
             updatedAt,
-            order,
+            sequenceNumber: order,
+            creatorName,
           } as IManual;
         });
 
@@ -82,30 +95,89 @@ export const useManualTable = (
       } finally {
         setIsLoading(false);
       }
-    };
+    }, [apiUrl, initialData]);
 
+  useEffect(() => {
     fetchData();
-  }, [apiUrl]);
+  }, [fetchData]);
+
+  const handleSelectAllClick = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.checked) {
+      const newSelected = paginatedData.map((n) => n.id as string);
+      setSelectedItems(newSelected);
+      return;
+    }
+    setSelectedItems([]);
+  };
+
+  const handleClick = (id: string) => {
+    const selectedIndex = selectedItems.indexOf(id);
+    let newSelected: string[] = [];
+
+    if (selectedIndex === -1) {
+      newSelected = newSelected.concat(selectedItems, id);
+    } else if (selectedIndex === 0) {
+      newSelected = newSelected.concat(selectedItems.slice(1));
+    } else if (selectedIndex === selectedItems.length - 1) {
+      newSelected = newSelected.concat(selectedItems.slice(0, -1));
+    } else if (selectedIndex > 0) {
+      newSelected = newSelected.concat(
+        selectedItems.slice(0, selectedIndex),
+        selectedItems.slice(selectedIndex + 1),
+      );
+    }
+
+    setSelectedItems(newSelected);
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedItems.length === 0) return;
+    if (confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูล ${selectedItems.length} รายการ?`)) {
+      try {
+        const url = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${url}/manual/bulk`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(selectedItems.map(Number)),
+        });
+
+        if (response.ok) {
+          setSelectedItems([]);
+          fetchData(); // Refresh data
+        } else {
+          console.error("Failed to delete items");
+        }
+      } catch (error) {
+        console.error("Error deleting items:", error);
+      }
+    }
+  };
 
   // ดึงรายการ "ระบบ" แบบไม่ซ้ำจากข้อมูลที่มีอยู่ เพื่อนำไปแสดงใน Dropdown
   const systemOptions = useMemo(() => {
-    const systems = data.map((item) => item.system).filter(Boolean) as string[];
+    const systems = data.map((item) => item.systemName).filter(Boolean) as string[];
     return Array.from(new Set(systems));
   }, [data]);
 
   // กรองข้อมูลตามเงื่อนไขทั้งหมด
   const filteredData = useMemo(() => {
-    return data.filter((item) => {
+    const filtered = data.filter((item) => {
       const query = searchQuery.trim().toLowerCase();
 
-      const title = item.title?.toLowerCase() || "";
+      const name = item.manualName?.toLowerCase() || "";
 
-      const matchTitle = !query || title.includes(query);
+      const matchTitle = !query || name.includes(query);
 
-      const matchSystem = !systemFilter || item.system === systemFilter;
+      const matchSystem = !systemFilter || item.systemName === systemFilter;
       const matchStatus = !statusFilter || item.status === statusFilter;
 
       return matchTitle && matchSystem && matchStatus;
+    });
+
+    return filtered.sort((a, b) => {
+      const orderA = a.sequenceNumber ?? 999999;
+      const orderB = b.sequenceNumber ?? 999999;
+      return orderA - orderB;
     });
   }, [data, searchQuery, systemFilter, statusFilter]);
 
@@ -140,24 +212,23 @@ export const useManualTable = (
 
       updatedItems = updated.map((item, index) => ({
         ...item,
-        order: index + 1,
+        sequenceNumber: index + 1,
       }));
       return updatedItems;
     });
 
-    
     if (updatedItems.length > 0) {
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL;
         await fetch(`${apiUrl}/manual/reorder`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: updatedItems.map((item) => ({
-              id: item.id,
-              order: item.order,
+          body: JSON.stringify(
+            updatedItems.map((item) => ({
+              id: Number(item.id),
+              order: item.sequenceNumber,
             })),
-          }),
+          ),
         });
       } catch (error) {
         console.error("Failed to update order in database:", error);
@@ -200,6 +271,7 @@ export const useManualTable = (
     statusFilter,
     systemOptions,
     isLoading,
+    selectedItems,
     handlePageChange,
     handleSelectPage,
     handleSearchChange,
@@ -207,5 +279,8 @@ export const useManualTable = (
     handleStatusChange,
     handleResetFilters,
     handleOrderChange,
+    handleSelectAllClick,
+    handleClick,
+    handleDeleteSelected,
   };
 };

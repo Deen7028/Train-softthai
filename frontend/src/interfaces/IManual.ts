@@ -4,11 +4,12 @@ import { ManualStatus } from "../enum";
 
 export interface IManual {
   id?: string;
-  title: string;
-  system?: string;
-  description?: string;
+  manualName: string;
+  systemName?: string;
   status: ManualStatus;
-  order?: number;
+  sequenceNumber?: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  createdBy?: number;
+  creatorName?: string;
 }

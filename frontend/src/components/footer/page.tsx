@@ -1,7 +1,22 @@
+import { Box, Typography, Container } from '@mui/material';
+
 export default function Footer() {
     return (
-        <footer style={{ backgroundColor: '#1976D2', padding: '20px 0', textAlign: 'center' }}>
-            <p style={{ margin: 0, color: 'white' }}>Web Application Developer Module</p>
-        </footer>
+        <Box
+            component="footer"
+            sx={{
+                bgcolor: 'blue',
+                py: 3,
+                textAlign: 'center',
+                mt: 'auto',
+                color: 'white',
+            }}
+        >
+            <Container maxWidth="lg">
+                <Typography variant="body2" sx={{ m: 0 }}>
+                    Web Application Developer Module
+                </Typography>
+            </Container>
+        </Box>
     );
 }
