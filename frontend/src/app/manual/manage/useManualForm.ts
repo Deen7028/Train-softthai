@@ -6,8 +6,8 @@ import { ManualStatus } from "@/src/enum";
 
 export const useManualForm = (initialData?: IManual) => {
   const router = useRouter();
-  const [system, setSystem] = useState(initialData?.system || "");
-  const [title, setTitle] = useState(initialData?.title || "");
+  const [system, setSystem] = useState(initialData?.systemName || "");
+  const [title, setTitle] = useState(initialData?.manualName || "");
   const [description, setDescription] = useState(
     initialData?.description || "",
   );
@@ -23,58 +23,30 @@ export const useManualForm = (initialData?: IManual) => {
   const handleSubmit = async () => {
     try {
       const isEdit = !!initialData?.id;
-      const url = isEdit
-        ? `${apiUrl}/manual/${initialData.id}`
-        : `${apiUrl}/manual`;
+      const url = `${apiUrl}/manual`;
 
-      let response;
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("system", system);
+      formData.append("status", status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE);
 
-      if (isEdit) {
-        const payload: {
-          title: string;
-          system: string;
-          status: string;
-          createdBy?: number;
-        } = {
-          title,
-          system,
-          status: status ? "ACTIVE" : "INACTIVE",
-        };
-
-        if (createdBy) {
-          payload.createdBy = Number(createdBy);
-        }
-
-        response = await fetch(url, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        });
-      } else {
-        const formData = new FormData();
-        formData.append("title", title);
-        formData.append("system", system);
-        formData.append("description", description);
-        formData.append(
-          "status",
-          status ? ManualStatus.ACTIVE : ManualStatus.INACTIVE,
-        );
-
-        if (createdBy) {
-          formData.append("createdBy", createdBy);
-        }
-
-        if (selectedFile) {
-          formData.append("file", selectedFile);
-        }
-
-        response = await fetch(url, {
-          method: "POST",
-          body: formData,
-        });
+      if (createdBy) {
+        formData.append("createdBy", createdBy);
       }
+
+      // ส่ง id ไปด้วย ถ้าเป็นการแก้ไข (backend จะ upsert ตาม id)
+      if (isEdit && initialData?.id) {
+        formData.append("id", initialData.id.toString());
+      }
+
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      const response = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
 
       if (response.ok) {
         alert("บันทึกข้อมูลสำเร็จ");

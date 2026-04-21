@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using backend.Data;
+using Infrastructure.Data.Context;
+using Infrastructure.Data.Entities;
 using backend.DTOs;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +10,9 @@ namespace backend.Services
 {
     public class UserService : IUserService
     {
-        private readonly AppDbContext _context;
+        private readonly WebAppEntity _context;
 
-        public UserService(AppDbContext context)
+        public UserService(WebAppEntity context)
         {
             _context = context;
         }
@@ -21,9 +22,9 @@ namespace backend.Services
             var users = await _context.TmUsers
                 .Select(u => new UserDto
                 {
-                    NUserId = u.Id,
-                    SUserName = u.UserName,
-                    IsActive = u.IsActive
+                    NUserId = u.nUserId,
+                    SUserName = u.sUserName,
+                    IsActive = u.isActive
                 })
                 .ToListAsync();
 

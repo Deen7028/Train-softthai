@@ -3,163 +3,131 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using backend.Controllers;
-using backend.Data;
+using Infrastructure.Data.Context;
+using Infrastructure.Data.Entities;
 using backend.DTOs;
-using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Services
 {
     public class ManualService : IManualService
     {
-        private readonly AppDbContext _context;
+        private readonly WebAppEntity _context;
 
-        public ManualService(AppDbContext context)
+        public ManualService(WebAppEntity context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<ManualDto>> GetManualsAsync()
+        public IEnumerable<ManualDto> GetManuals()
         {
             var query = from manual in _context.Tbmanuals
-                        join user in _context.TmUsers on manual.CreatedBy equals user.Id into userGroup
+                        join user in _context.TmUsers on manual.nCreatedBy equals user.nUserId into userGroup
                         from user in userGroup.DefaultIfEmpty()
-                        orderby manual.SequenceNumber ascending
+                        where manual.isDeleted == false
+                        orderby manual.nSequence_number ascending
                         select new ManualDto
                         {
-                            Id = manual.Id,
-                            SequenceNumber = manual.SequenceNumber,
-                            ManualName = manual.ManualName,
-                            SystemName = manual.SystemName,
-                            Status = manual.IsActive ? "ACTIVE" : "INACTIVE",
-                            CreatedBy = manual.CreatedBy,
-                            CreatorName = user != null ? user.UserName : "ไม่ระบุ",
-                            UpdatedAt = manual.UpdatedAt
+                            Id = manual.nId,
+                            SequenceNumber = manual.nSequence_number,
+                            ManualName = manual.sManualName,
+                            SystemName = manual.sSystemName,
+                            Status = manual.isActive ? "ACTIVE" : "INACTIVE",
+                            CreatedBy = manual.nCreatedBy,
+                            CreatorName = user != null ? user.sUserName : "ไม่ระบุ",
+                            UpdatedAt = manual.dUpdated_at ?? DateTime.Now
                         };
-            return await query.ToListAsync();
+            return query.ToList();
         }
 
-        public async Task<object?> GetManualByIdAsync(int id)
+        public object? GetManualById(int id)
         {
             var query = from manual in _context.Tbmanuals
-                        join user in _context.TmUsers on manual.CreatedBy equals user.Id into userGroup
+                        join user in _context.TmUsers on manual.nCreatedBy equals user.nUserId into userGroup
                         from user in userGroup.DefaultIfEmpty()
-                        where manual.Id == id
+                        where manual.nId == id && manual.isDeleted == false
                         select new ManualDto
                         {
-                            Id = manual.Id,
-                            SequenceNumber = manual.SequenceNumber,
-                            ManualName = manual.ManualName,
-                            SystemName = manual.SystemName,
-                            Status = manual.IsActive ? "ACTIVE" : "INACTIVE",
-                            CreatedBy = manual.CreatedBy,
-                            CreatorName = user != null ? user.UserName : "ไม่ระบุ",
-                            UpdatedAt = manual.UpdatedAt
+                            Id = manual.nId,
+                            SequenceNumber = manual.nSequence_number,
+                            ManualName = manual.sManualName,
+                            SystemName = manual.sSystemName,
+                            Status = manual.isActive ? "ACTIVE" : "INACTIVE",
+                            CreatedBy = manual.nCreatedBy,
+                            CreatorName = user != null ? user.sUserName : "ไม่ระบุ",
+                            UpdatedAt = manual.dUpdated_at ?? DateTime.Now
                         };
 
-            return await query.FirstOrDefaultAsync();
+            return query.FirstOrDefault();
         }
 
-        public async Task<object> CreateManualAsync(string manualName, string systemName, string status, int? createdBy, int id)
+        public object CreateManual(string manualName, string systemName, string status, int? createdBy, int id)
         {
-            int maxSeq = await _context.Tbmanuals.AnyAsync()
-                ? await _context.Tbmanuals.MaxAsync(m => m.SequenceNumber)
+            int maxSeq = _context.Tbmanuals.Any()
+                ? _context.Tbmanuals.Max(m => m.nSequence_number)
                 : 0;
 
-            var newManual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
+            var newManual = _context.Tbmanuals.FirstOrDefault(m => m.nId == id);
             if (newManual == null)
             {
-                newManual = new Manuals();
-                newManual.SequenceNumber = maxSeq + 1;
-                newManual.ManualName = manualName ?? "";
-                newManual.SystemName = systemName ?? "";
-                newManual.IsActive = status == "ACTIVE";
-                newManual.CreatedBy = createdBy;
-                newManual.CreatedAt = DateTime.Now;
-                newManual.UpdatedAt = DateTime.Now;
+                newManual = new Tbmanuals();
+                newManual.nSequence_number = maxSeq + 1;
+                newManual.nCreatedBy = createdBy;
+                newManual.dCreated_at = DateTime.Now;
                 _context.Tbmanuals.Add(newManual);
             }
-            else
-            {
-                newManual.ManualName = manualName ?? "";
-                newManual.SystemName = systemName ?? "";
-                newManual.IsActive = status == "ACTIVE";
-                newManual.UpdatedAt = DateTime.Now;
-            }
 
-            await _context.SaveChangesAsync();
+            newManual.sManualName = manualName ?? "";
+            newManual.sSystemName = systemName ?? "";
+            newManual.isActive = status == "ACTIVE";
+            newManual.dUpdated_at = DateTime.Now;
 
-            return new { id = newManual.Id };
+
+            _context.SaveChanges();
+
+            return new { id = newManual.nId };
         }
 
-        public async Task<object?> UpdateManualAsync(int id, UpdateManual request)
+        public bool DeleteManual(int id)
         {
-            var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
-
-            if (manual == null) return null;
-
-            if (!string.IsNullOrEmpty(request.ManualName))
-                manual.ManualName = request.ManualName;
-
-            if (!string.IsNullOrEmpty(request.SystemName))
-                manual.SystemName = request.SystemName;
-
-            if (!string.IsNullOrEmpty(request.Status))
-                manual.IsActive = request.Status.ToUpper() == "ACTIVE";
-
-            if (request.CreatedBy.HasValue)
-                manual.CreatedBy = request.CreatedBy.Value;
-
-            manual.UpdatedAt = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            return new ManualDto
-            {
-                Id = manual.Id,
-                ManualName = manual.ManualName,
-                SystemName = manual.SystemName,
-                Status = manual.IsActive ? "ACTIVE" : "INACTIVE",
-                UpdatedAt = manual.UpdatedAt
-            };
-        }
-
-        public async Task<bool> DeleteManualAsync(int id)
-        {
-            var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == id);
+            var manual = _context.Tbmanuals.FirstOrDefault(m => m.nId == id);
             if (manual == null) return false;
 
-            _context.Tbmanuals.Remove(manual);
-            await _context.SaveChangesAsync();
+            manual.isDeleted = true; // soft delete: ซ่อนแทนการลบจริง
+            _context.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> DeleteManualsAsync(List<int> ids)
+        public bool DeleteManuals(List<int> ids)
         {
-            var manuals = await _context.Tbmanuals.Where(m => ids.Contains(m.Id)).ToListAsync();
+            var manuals = _context.Tbmanuals.Where(m => ids.Contains(m.nId)).ToList();
             if (manuals.Count == 0) return false;
 
-            _context.Tbmanuals.RemoveRange(manuals);
-            await _context.SaveChangesAsync();
+            foreach (var manual in manuals)
+            {
+                manual.isDeleted = true; // soft delete: ซ่อนแทนการลบจริง
+            }
+            _context.SaveChanges();
 
             return true;
         }
 
-        public async Task<bool> ReorderManualsAsync(List<ReorderRequest> items)
+        public bool ReorderManuals(List<ReorderRequest> items)
         {
             foreach (var item in items)
             {
-                var manual = await _context.Tbmanuals.FirstOrDefaultAsync(m => m.Id == item.Id);
+                var manual = _context.Tbmanuals.FirstOrDefault(m => m.nId == item.Id);
                 if (manual != null)
                 {
-                    manual.SequenceNumber = item.Order;
-                    manual.UpdatedAt = DateTime.Now;
+                    manual.nSequence_number = item.Order;
+                    manual.dUpdated_at = DateTime.Now;
                 }
             }
 
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return true;
         }
     }
 }
+

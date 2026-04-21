@@ -24,29 +24,30 @@ export const ManualProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const addManual = async (manual: IManual) => {
         const formData = new FormData();
-        formData.append('title', manual.title ?? '');
-        formData.append('system', manual.system ?? '');
+        formData.append('title', manual.manualName ?? '');
+        formData.append('system', manual.systemName ?? '');
         formData.append('status', manual.status ?? '');
-        await fetch('/api/manual', { method: 'POST', body: formData });
-        const res = await fetch('/api/manual');
+        await fetch(`${apiUrl}/manual`, { method: 'POST', body: formData });
+        const res = await fetch(`${apiUrl}/manual`);
         const data = await res.json();
         setManuals(data);
     };
 
     const updateManual = async (id: string, manual: IManual) => {
         const formData = new FormData();
-        formData.append('title', manual.title ?? '');
-        formData.append('system', manual.system ?? '');
+        formData.append('id', id);
+        formData.append('title', manual.manualName ?? '');
+        formData.append('system', manual.systemName ?? '');
         formData.append('status', manual.status ?? '');
-        await fetch(`/api/manual/${id}`, { method: 'PUT', body: formData });
-        const res = await fetch('/api/manual');
+        await fetch(`${apiUrl}/manual`, { method: 'POST', body: formData });
+        const res = await fetch(`${apiUrl}/manual`);
         const data = await res.json();
         setManuals(data);
     };
 
     const deleteManual = async (id: string) => {
-        await fetch(`http://localhost:5214/api/manual/${id}`, { method: 'DELETE' });
-        const res = await fetch('/api/manual');
+        await fetch(`${apiUrl}/manual/${id}`, { method: 'DELETE' });
+        const res = await fetch(`${apiUrl}/manual`);
         const data = await res.json();
         setManuals(data);
     };

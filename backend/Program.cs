@@ -1,4 +1,4 @@
-using backend.Data;
+using Infrastructure.Data.Context;
 using backend.Services;
 using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
@@ -17,7 +17,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<WebAppEntity>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddScoped<IManualService, ManualService>();
