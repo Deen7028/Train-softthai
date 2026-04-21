@@ -1,0 +1,9 @@
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.csproj.AssemblyReference.cache
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\rpswa.dswa.cache.json
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.GeneratedMSBuildEditorConfig.editorconfig
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.AssemblyInfoInputs.cache
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.AssemblyInfo.cs
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.csproj.CoreCompileInputs.cache
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.MvcApplicationPartsAssemblyInfo.cs
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.MvcApplicationPartsAssemblyInfo.cache
+D:\Train-softhai\Train-softthai\backend\obj\Debug\net10.0\MyAnnouncementApi.sourcelink.json
